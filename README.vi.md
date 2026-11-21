@@ -4,9 +4,9 @@
 
 ## Hiện trạng
 
-Đang phát triển nền nhập tệp và phân tích chất lượng dữ liệu. Có không gian guest riêng, đăng nhập, nhập CSV/XLSX, chọn trang tính, xem trước và xem ô thiếu/dòng trùng/cảnh báo. Giao diện hỗ trợ tiếng Việt/Anh. Dữ liệu chưa bị tự sửa.
+Đã có không gian guest riêng, đăng nhập, nhập CSV/XLSX, chọn trang tính, xem trước và xem ô thiếu/dòng trùng/cảnh báo. Phần Làm sạch & xuất hỗ trợ thêm bước, xem trước tác động, xác nhận lưu phiên bản, khôi phục và tải CSV/XLSX/JSON hoặc báo cáo chất lượng. Giao diện hỗ trợ tiếng Việt/Anh. Dữ liệu không bị tự sửa; nguồn và các phiên bản được giữ riêng. Xem [hướng dẫn làm sạch](docs/CLEANING.md).
 
-Chưa hoàn thành phần làm sạch, xuất tệp, ghép bảng, workflow, analytics và quản trị. Chưa có URL public đã xác minh. Không coi checkpoint này là sản phẩm cuối.
+Chưa hoàn thành ghép bảng, workflow, analytics và quản trị. Chưa có URL public đã xác minh. Không coi checkpoint này là sản phẩm cuối.
 
 ## Chạy thử
 

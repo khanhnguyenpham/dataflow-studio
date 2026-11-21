@@ -9,6 +9,7 @@ export interface Dataset {
   name: string;
   rows: number;
   columns: number;
+  version: number;
   sheet: string | null;
   created_at: string;
 }
@@ -75,3 +76,22 @@ export const post = <T>(path: string, body?: unknown) =>
     headers: body ? { "Content-Type": "application/json" } : {},
     body: body ? JSON.stringify(body) : undefined,
   });
+
+export async function download(path: string, body: unknown, name: string) {
+  const response = await fetch(`/api${path}`, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ code: "unknown" }));
+    throw new ApiError(error.code ?? "unknown", response.status);
+  }
+  const url = URL.createObjectURL(await response.blob());
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = name;
+  anchor.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
