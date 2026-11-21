@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api, post, ApiError, type Dataset } from "./api";
 import type { Preview, Step } from "./useCleaning";
+import type { AggregateSpec } from "./useAnalytics";
 
 export interface Workflow {
   id: string;
@@ -13,6 +14,7 @@ export interface WorkflowDetail extends Workflow {
   definition: {
     input_schema: string[];
     steps: Step[];
+    aggregation?: AggregateSpec | null;
     integration: null | {
       mode: string;
       right_schema: string[];
@@ -201,6 +203,7 @@ export function useWorkflows(
           dataset_id: input,
           expected_version: source?.version,
           steps: draftSteps.filter((d) => d.enabled).map((d) => d.step),
+          aggregation: detail.definition.aggregation ?? null,
           right_dataset_id: integration ? lookup : null,
           integration: integration
             ? {

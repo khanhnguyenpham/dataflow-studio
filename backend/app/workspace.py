@@ -93,7 +93,14 @@ def check_storage(db, user, extra=0):
         .join(Workflow, Workflow.id == WorkflowVersion.workflow_id)
         .where(Workflow.owner_id == user.id)
     )
-    if source + derived + pending + recipes + extra > (64 if user.role == "guest" else 256) * 1024 * 1024:
+    from .report_models import Report
+
+    reports = db.scalar(
+        select(func.coalesce(func.sum(4 * func.length(cast(Report.specification, Text))), 0)).where(
+            Report.owner_id == user.id
+        )
+    )
+    if source + derived + pending + recipes + reports + extra > (64 if user.role == "guest" else 256) * 1024 * 1024:
         raise Problem("workspace_limit", 413)
 
 

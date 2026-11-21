@@ -141,3 +141,22 @@ def test_concurrent_execute_and_apply_do_not_duplicate_results(guest, app):
     with app.state.sessions() as db:
         assert db.scalar(select(func.count()).select_from(Preview)) == 1
         assert db.scalar(select(func.count()).select_from(DatasetVersion)) == 1
+
+
+def test_aggregation_is_reusable_and_remains_a_preview_until_applied(guest):
+    source = upload(guest, "amounts.csv", "sku,qty\nP1,0.1\nP1,0.2\n")
+    definition = {
+        "name": "Quantity totals",
+        "dataset_id": source,
+        "expected_version": 1,
+        "aggregation": {"group_by": "sku", "operation": "sum", "measure": "qty"},
+    }
+    response = guest.post("/api/workflows", json=definition)
+    assert response.status_code == 201, response.text
+    workflow = response.json()["id"]
+    run = guest.post(f"/api/workflows/{workflow}/runs", json=run_body(source)).json()
+    assert guest.post(f"/api/workflows/{workflow}/runs/{run['id']}/execute").json()["status"] == "completed"
+    result = guest.get(f"/api/workflows/{workflow}/runs/{run['id']}/result").json()
+    assert result["after"]["columns"] == ["sku", "sum(qty)", "source_rows"]
+    assert result["after"]["records"] == [["P1", "0.3", "2"]]
+    assert guest.get(f"/api/datasets/{source}").json()["records"] == [["P1", "0.1"], ["P1", "0.2"]]

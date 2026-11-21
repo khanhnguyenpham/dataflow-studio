@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added Decimal aggregation, filters, bounded bar/line/pie charts and saved reports pinned to dataset versions.
+- Added CSV/JSON report exports and optional aggregation in reusable workflows, with invalid-number and missing-value handling.
+
 - Added versioned reusable workflows, exact input contracts, append/left/inner integration and explicit unmatched-key policy.
 - Added persisted execution states, idempotent retries, preview-before-apply results and two-month synthetic browser walkthrough.
 - Added editable recipe ordering/enabling and shared step builder with explicit mixed-date formats.

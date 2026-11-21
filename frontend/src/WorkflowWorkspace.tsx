@@ -162,6 +162,14 @@ export default function WorkflowWorkspace({
               <p className="muted">
                 {t("wf.versionHistory")} {w.detail.versions.join(", ")}
               </p>
+              {definition.aggregation && (
+                <p>
+                  {t("analyticsNav")}:{" "}
+                  {t(`analytics.${definition.aggregation.operation}`)} ·{" "}
+                  {definition.aggregation.measure ?? t("rows")} ·{" "}
+                  {definition.aggregation.group_by}
+                </p>
+              )}
             </section>
             <section className="recipe-panel">
               <h2>{t("wf.runTitle")}</h2>

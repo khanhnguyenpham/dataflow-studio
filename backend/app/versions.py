@@ -1,5 +1,4 @@
-import csv
-from io import BytesIO, StringIO
+from io import BytesIO
 import json
 
 from fastapi import APIRouter, Depends, Request, Response
@@ -12,6 +11,7 @@ from sqlalchemy import func, select
 from .auth import identity, limited, session_db
 from .db import DatasetVersion, Preview, as_utc, now
 from .errors import Problem
+from .exports import csv_bytes
 from .processing import profile
 from .transforms import Step, Strict, apply_steps
 from .workspace import (
@@ -139,12 +139,6 @@ def restore(key: str, body: RestoreRequest, user=Depends(identity), db=Depends(s
     return summary(db, row)
 
 
-def escaped(value):
-    if value is not None and (value.startswith(("\t", "\r", "\n")) or value.lstrip().startswith(("=", "+", "-", "@"))):
-        return "'" + value
-    return value or ""
-
-
 @router.post("/{key}/export")
 def export(key: str, body: ExportRequest, request: Request, user=Depends(identity), db=Depends(session_db)):
     limited(request, "export", 15, 60)
@@ -158,11 +152,9 @@ def export(key: str, body: ExportRequest, request: Request, user=Depends(identit
         "Content-Disposition": f'attachment; filename="dataflow-v{row.current_version}.{body.format if body.format != "quality" else "json"}"'
     }
     if body.format == "csv":
-        buffer = StringIO(newline="")
-        writer = csv.writer(buffer)
-        writer.writerows([[escaped(c) for c in columns]] + [[escaped(v) for v in r] for r in records])
-        headers["X-Dataflow-Escaped-Cells"] = str(sum(escaped(v) != (v or "") for r in [columns] + records for v in r))
-        return Response(buffer.getvalue().encode("utf-8-sig"), media_type="text/csv", headers=headers)
+        content, count = csv_bytes(columns, records)
+        headers["X-Dataflow-Escaped-Cells"] = str(count)
+        return Response(content, media_type="text/csv", headers=headers)
     if body.format == "xlsx":
         if any(
             value is not None and (len(value) > 32767 or ILLEGAL_CHARACTERS_RE.search(value))

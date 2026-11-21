@@ -9,6 +9,7 @@ from pydantic import Field, TypeAdapter
 from sqlalchemy import func, select
 
 from .auth import identity, limited, session_db
+from .aggregation import AggregateSpec, aggregate, result_columns
 from .db import Preview, as_utc, now
 from .errors import Problem
 from .integration import IntegrationSpec, combine_tables
@@ -27,6 +28,7 @@ class DefinitionRequest(Strict):
     expected_version: int = Field(ge=1)
     steps: list[Step] = Field(default_factory=list, max_length=20)
     integration: IntegrationSpec | None = None
+    aggregation: AggregateSpec | None = None
     right_dataset_id: str | None = Field(default=None, max_length=36)
     expected_workflow_version: int | None = Field(default=None, ge=1)
 
@@ -106,17 +108,27 @@ def save_definition(db, user, body, settings, row=None):
         raise Problem("stale_version", 409)
     columns, records = materialize(db, source)
     cleaned_columns, cleaned_records, _ = apply_steps(columns, records, body.steps, settings)
-    result = {"input_schema": columns, "steps": [s.model_dump() for s in body.steps], "integration": None}
+    result = {
+        "input_schema": columns,
+        "steps": [s.model_dump() for s in body.steps],
+        "integration": None,
+        "aggregation": body.aggregation.model_dump() if body.aggregation else None,
+    }
     if body.integration:
         if not body.right_dataset_id or body.right_dataset_id == source.id:
             raise Problem("right_dataset_required")
         right = owned(db, user, body.right_dataset_id)
         right_columns, right_records = materialize(db, right)
-        combine_tables(cleaned_columns, cleaned_records, right_columns, right_records, body.integration, settings)
+        cleaned_columns, cleaned_records, _ = combine_tables(
+            cleaned_columns, cleaned_records, right_columns, right_records, body.integration, settings
+        )
         result["integration"] = {**body.integration.model_dump(), "right_schema": right_columns}
     elif body.right_dataset_id:
         raise Problem("invalid_request")
-    if not body.steps and not body.integration:
+    if body.aggregation:
+        aggregate(cleaned_columns, cleaned_records, body.aggregation, settings)
+        result_columns(body.aggregation)
+    if not body.steps and not body.integration and not body.aggregation:
         raise Problem("empty_workflow")
     if len(json.dumps(result).encode()) > 65536:
         raise Problem("dataset_limit", 413)
@@ -299,6 +311,14 @@ def execute(key: str, run_id: str, request: Request, user=Depends(identity), db=
                     **integration,
                 }
             )
+        if spec.get("aggregation"):
+            config = AggregateSpec.model_validate(spec["aggregation"])
+            before = len(records)
+            totals = aggregate(columns, records, config, request.app.state.settings)
+            columns = result_columns(config)
+            records = [[item["group"], item["value"], str(item["rows"])] for item in totals["items"]]
+            impacts.append({"op": "aggregate", "rows_before": before, "rows_after": len(records), "cell_updates": 0})
+            steps.append({"op": "aggregate", **config.model_dump()})
         saved = save_preview(
             db,
             user,

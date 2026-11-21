@@ -6,11 +6,11 @@ DataFlow Studio is a web workspace for inspecting spreadsheets and building repe
 
 ## Current checkpoint
 
-Import, profiling, versioned cleaning/export and reusable workflows work end to end. This is **not the finished platform** and there is no verified public deployment yet.
+Import, profiling, versioned cleaning/export, reusable workflows and saved analytics work end to end. This is **not the finished platform** and there is no verified public deployment yet.
 
 Available in this working slice: isolated, two-hour guest sessions; sign-in and password changes; bounded CSV/XLSX imports; explicit selection of Excel sheets; dataset preview; missing values, duplicate rows, suggested types and review warnings; English/Vietnamese UI. Source bytes and values are retained without automatic correction. Accounts are created by an operator.
 
-Clean & export adds typed recipes, before/after previews, explicit apply, retained version history/restore and CSV/XLSX/JSON/quality downloads. [Workflows](docs/WORKFLOWS.md) save recipes and column contracts, append or join tables with key checks, and run against new files with persisted status/history and idempotent retries. See the [cleaning guide](docs/CLEANING.md). Analytics, admin screens and public hosting remain next milestones. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and the [plan](docs/PLAN.md).
+Clean & export adds typed recipes, before/after previews, explicit apply, retained version history/restore and CSV/XLSX/JSON/quality downloads. [Workflows](docs/WORKFLOWS.md) save recipes and column contracts, append/join tables with key checks, aggregate, and run against new files with persisted history and idempotent retries. [Analytics](docs/ANALYTICS.md) provides real Decimal totals/counts/averages, filtered charts and saved reports pinned to dataset versions. See the [cleaning guide](docs/CLEANING.md). Admin screens and public hosting remain next milestones. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and the [plan](docs/PLAN.md).
 
 ![DataFlow workspace with the synthetic sales sample](docs/images/workspace-desktop.png)
 

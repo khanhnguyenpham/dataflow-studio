@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from app.config import Settings
 from app.db import Base
 from app import workflow_models  # noqa: F401 - register workflow metadata
+from app import report_models  # noqa: F401 - register report metadata
 
 url = Settings.from_env().database_url
 if context.is_offline_mode():
