@@ -19,10 +19,12 @@ import {
   UploadCloud,
   X,
   Workflow,
+  BarChart3,
 } from "lucide-react";
 import { useWorkspace } from "./useWorkspace";
 import CleaningWorkspace from "./CleaningWorkspace";
 import WorkflowWorkspace from "./WorkflowWorkspace";
+import AnalyticsWorkspace from "./AnalyticsWorkspace";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -203,6 +205,7 @@ export default function App() {
             ["quality", CheckCheck],
             ["cleaning", BrushCleaning],
             ["workflows", Workflow],
+            ["analytics", BarChart3],
             ["help", HelpCircle],
             ["account", Settings],
           ].map(([key, Icon]) => {
@@ -214,7 +217,9 @@ export default function App() {
                 onClick={() => navigate(String(key))}
               >
                 <ViewIcon size={18} />
-                <span>{t(String(key))}</span>
+                <span>
+                  {t(key === "analytics" ? "analyticsNav" : String(key))}
+                </span>
               </button>
             );
           })}
@@ -232,7 +237,7 @@ export default function App() {
         <header className="topbar">
           <div>
             <span>{t("workspace")}</span>
-            <b>{t(tab)}</b>
+            <b>{t(tab === "analytics" ? "analyticsNav" : tab)}</b>
           </div>
           {language}
         </header>
@@ -242,7 +247,7 @@ export default function App() {
           <div className="page-title">
             <div>
               <p className="eyebrow">{t(w.user.role)}</p>
-              <h1>{t(tab)}</h1>
+              <h1>{t(tab === "analytics" ? "analyticsNav" : tab)}</h1>
             </div>
             {(tab === "datasets" || tab === "quality") && (
               <button
@@ -528,6 +533,7 @@ export default function App() {
           {tab === "workflows" && (
             <WorkflowWorkspace datasets={w.datasets} changed={w.changed} />
           )}
+          {tab === "analytics" && <AnalyticsWorkspace datasets={w.datasets} />}
           {tab === "help" && (
             <section className="help">
               <h2>{t("helpTitle")}</h2>

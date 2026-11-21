@@ -1,4 +1,65 @@
 @import "tailwindcss";
+.analytics-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.analytics-filter {
+  grid-column: 1/-1;
+  padding: 12px 0;
+}
+.analytics-filter summary {
+  cursor: pointer;
+}
+.chart-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.data-chart {
+  width: 100%;
+  min-width: 560px;
+  max-height: 360px;
+  display: block;
+}
+.data-chart text {
+  font-family: inherit;
+  font-size: 12px;
+  fill: #52675d;
+}
+.empty-chart {
+  padding: 30px 0;
+  text-align: center;
+  color: #64796e;
+}
+.report-toolbar {
+  display: flex;
+  gap: 12px;
+}
+.report-toolbar label {
+  width: min(100%, 550px);
+}
+.save-report {
+  display: flex;
+  align-items: end;
+  gap: 15px;
+}
+.save-report label {
+  flex: 1;
+}
+@media (max-width: 850px) {
+  .analytics-form {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .analytics-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .save-report {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
 .success {
   color: #236753;
   background: #ecf6ef;
@@ -73,6 +134,10 @@
   gap: 20px;
 }
 .version-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 20px;
   background: #edf5f1;
   border: 1px solid #cfe1d8;
   padding: 16px 20px;

@@ -13,6 +13,8 @@ October still has a bad date, textual quantity and missing quantity after dedupl
 
 ## Integration rules
 
+Definitions can optionally aggregate after cleaning and integration. Analytics can save a reviewed sum/count/average configuration directly as a workflow. A run then produces an aggregate-table preview (group, value and source-row count) using the same numeric validation rules. It still needs explicit apply and never replaces source bytes.
+
 - Append requires the same column names, but aligns a different order by exact names.
 - Joins use exact text equality. Clean whitespace/case in the inputs explicitly when appropriate.
 - Lookup keys must be non-empty and unique. Duplicate lookup keys fail rather than multiply sales rows.

@@ -6,7 +6,7 @@
 
 Đã có không gian guest riêng, đăng nhập, nhập CSV/XLSX, chọn trang tính, xem trước và xem ô thiếu/dòng trùng/cảnh báo. Phần Làm sạch & xuất hỗ trợ thêm bước, xem trước tác động, xác nhận lưu phiên bản, khôi phục và tải CSV/XLSX/JSON hoặc báo cáo chất lượng. Giao diện hỗ trợ tiếng Việt/Anh. Dữ liệu không bị tự sửa; nguồn và các phiên bản được giữ riêng. Xem [hướng dẫn làm sạch](docs/CLEANING.md).
 
-Đã có [quy trình dùng lại](docs/WORKFLOWS.md), nối dòng/ghép bảng có kiểm tra khóa, chốt phiên bản đầu vào, phát hiện đổi cấu trúc cột và lịch sử chạy. Có thể chạy lại cùng quy trình với bảng tháng mới rồi xem trước và xác nhận kết quả. Chưa hoàn thành analytics và quản trị. Chưa có URL public đã xác minh. Không coi checkpoint này là sản phẩm cuối.
+Đã có [quy trình dùng lại](docs/WORKFLOWS.md), nối dòng/ghép bảng có kiểm tra khóa, chốt phiên bản đầu vào, phát hiện đổi cấu trúc cột và lịch sử chạy. [Phân tích](docs/ANALYTICS.md) có đếm/tổng/trung bình, lọc dòng, biểu đồ cột/đường/tròn và báo cáo giữ phiên bản lịch sử. Có thể lưu phép tổng hợp vào quy trình để chạy với tệp tháng mới. Chưa hoàn thành quản trị và hosting public. Không coi checkpoint này là sản phẩm cuối.
 
 ## Chạy thử
 
