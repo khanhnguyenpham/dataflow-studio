@@ -1,4 +1,119 @@
 import { test, expect } from "@playwright/test";
+
+test("monthly workflow joins lookup data and runs again on a new month", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try a private workspace" }).click();
+  await expect(
+    page.getByRole("heading", { name: "monthly-sales-sample.csv" }),
+  ).toBeVisible();
+  const source = await page
+    .getByRole("combobox", { name: "My datasets" })
+    .inputValue();
+  await page
+    .getByRole("combobox", { name: "Sample dataset" })
+    .selectOption("products");
+  await page.getByRole("button", { name: "Load sample", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "products.csv" }),
+  ).toBeVisible();
+  const lookup = await page
+    .getByRole("combobox", { name: "My datasets" })
+    .inputValue();
+  await page
+    .getByRole("combobox", { name: "Sample dataset" })
+    .selectOption("next-month");
+  await page.getByRole("button", { name: "Load sample", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "next-month-sales.csv" }),
+  ).toBeVisible();
+  const next = await page
+    .getByRole("combobox", { name: "My datasets" })
+    .inputValue();
+  await page
+    .getByRole("combobox", { name: "My datasets" })
+    .selectOption(source);
+  await expect(
+    page.getByRole("heading", { name: "monthly-sales-sample.csv" }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Clean & export", exact: true })
+    .click();
+  await page
+    .getByRole("combobox", { name: "Operation", exact: true })
+    .selectOption("dedupe");
+  await page
+    .getByRole("listbox", { name: "Columns", exact: true })
+    .selectOption("Order ID");
+  await page.getByRole("button", { name: "Add step", exact: true }).click();
+  await page.getByText("Save a reusable workflow", { exact: true }).click();
+  await page
+    .getByRole("textbox", { name: "Workflow name", exact: true })
+    .fill("Monthly report");
+  await page
+    .getByRole("combobox", { name: "Combine with another dataset" })
+    .selectOption("left");
+  await page
+    .getByRole("combobox", { name: "Lookup / second dataset" })
+    .selectOption(lookup);
+  await page
+    .getByRole("combobox", { name: "Source key after cleaning" })
+    .selectOption("Product Code");
+  await page
+    .getByRole("combobox", { name: "Lookup key", exact: true })
+    .selectOption("Product Code");
+  await page
+    .getByRole("button", { name: "Save workflow", exact: true })
+    .click();
+  await expect(page.getByRole("status")).toContainText("Workflow saved.");
+  await page.getByRole("button", { name: "Workflows", exact: true }).click();
+  await page
+    .getByRole("combobox", { name: "Select a workflow" })
+    .selectOption({ label: "Monthly report · v1" });
+  await page
+    .getByRole("combobox", { name: "Source dataset", exact: true })
+    .selectOption(source);
+  await page
+    .getByRole("combobox", { name: "Lookup / second dataset" })
+    .selectOption(lookup);
+  await page.getByRole("button", { name: "Run workflow", exact: true }).click();
+  await expect(
+    page.getByText("Source: 6 rows · Result: 5 rows", { exact: true }),
+  ).toBeVisible();
+  page.on("dialog", (dialog) => dialog.accept());
+  await page
+    .getByRole("button", { name: "Confirm and save version", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Run result preview" }),
+  ).toHaveCount(0);
+  await page
+    .getByRole("combobox", { name: "Source dataset", exact: true })
+    .selectOption(next);
+  await page.getByRole("button", { name: "Run workflow", exact: true }).click();
+  await expect(
+    page.getByText("Source: 4 rows · Result: 3 rows", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("cell", { name: "Travel Notebook", exact: true }),
+  ).toBeVisible();
+  await page.screenshot({
+    path: "../docs/images/workflow-result.png",
+    fullPage: true,
+  });
+  await page.getByRole("combobox", { name: "Language" }).selectOption("vi");
+  await expect(
+    page.getByRole("heading", { name: "Xem trước kết quả chạy" }),
+  ).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
 test("guest inspects real parsed sample and can change language", async ({
   page,
 }) => {

@@ -140,6 +140,8 @@ def test_replaced_preview_and_excel_representation_limits(guest):
     assert guest.post(f"/api/datasets/{key}/preview/{second['id']}/apply").status_code == 200
     content = b"id,value\n001," + b"x" * 32768 + b"\n"
     other = guest.post("/api/datasets/import", files={"file": ("long.csv", content)}).json()["id"]
-    response = guest.post(f"/api/datasets/{other}/export", json={"expected_version": 1, "format": "xlsx", "confirmed": True})
+    response = guest.post(
+        f"/api/datasets/{other}/export", json={"expected_version": 1, "format": "xlsx", "confirmed": True}
+    )
     assert response.status_code == 422 and response.json()["code"] == "xlsx_values"
     assert len(guest.get(f"/api/datasets/{other}").json()["records"][0][1]) == 32768

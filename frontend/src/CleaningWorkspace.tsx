@@ -1,22 +1,11 @@
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Download, Eye, Plus, RotateCcw, Trash2, Check } from "lucide-react";
-import type { Detail } from "./api";
-import { useCleaning, type Step, type Slice } from "./useCleaning";
+import { Download, Eye, RotateCcw, Trash2, Check } from "lucide-react";
+import type { Dataset, Detail } from "./api";
+import StepBuilder from "./StepBuilder";
+import WorkflowSaveForm from "./WorkflowSaveForm";
+import { useCleaning, type Slice } from "./useCleaning";
 
-const operations = [
-  "trim",
-  "unicode",
-  "rename",
-  "fill_null",
-  "replace",
-  "dedupe",
-  "date",
-  "number",
-  "filter",
-  "split",
-  "combine",
-];
 function PreviewTable({ value, label }: { value: Slice; label: string }) {
   const { t, i18n } = useTranslation();
   return (
@@ -54,14 +43,15 @@ function PreviewTable({ value, label }: { value: Slice; label: string }) {
 export default function CleaningWorkspace({
   detail,
   changed,
+  datasets,
 }: {
   detail: Detail;
   changed: () => Promise<void>;
+  datasets: Dataset[];
 }) {
   const { t } = useTranslation();
   const w = useCleaning(detail, changed);
-  const [op, setOp] = useState("trim"),
-    [format, setFormat] = useState("xlsx"),
+  const [format, setFormat] = useState("xlsx"),
     [confirmed, setConfirmed] = useState(false);
   const columns = w.steps.reduce(
     (cols, step) => {
@@ -78,21 +68,6 @@ export default function CleaningWorkspace({
     },
     [...detail.column_names],
   );
-  const multi = ["trim", "unicode", "dedupe", "combine"].includes(op);
-  function add(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const step: Step = { op };
-    for (const [key, value] of form.entries())
-      if (key !== "columns") step[key] = String(value);
-    if (multi) step.columns = form.getAll("columns").map(String);
-    if (op === "date") step.formats = [String(step.formats)];
-    if (op === "split")
-      step.names = String(step.names)
-        .split(",")
-        .map((s) => s.trim());
-    w.updateSteps([...w.steps, step]);
-  }
   return (
     <div className="cleaning-workspace" aria-busy={w.busy}>
       <div className="version-banner">
@@ -113,131 +88,12 @@ export default function CleaningWorkspace({
         <section className="recipe-panel">
           <h2>{t("clean.build")}</h2>
           <p>{t("clean.instructions")}</p>
-          <form onSubmit={add} className="step-form" key={op}>
-            <label>
-              {t("clean.operation")}
-              <select
-                value={op}
-                onChange={(e) => setOp(e.target.value)}
-                disabled={w.busy}
-              >
-                {operations.map((x) => (
-                  <option key={x} value={x}>
-                    {t(`op.${x}`)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              {t(multi ? "clean.chooseColumns" : "field")}
-              <select
-                name={multi ? "columns" : "column"}
-                multiple={multi}
-                defaultValue={
-                  multi
-                    ? columns.slice(0, op === "combine" ? 2 : columns.length)
-                    : columns[0]
-                }
-                required
-              >
-                {columns.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {multi && <small>{t("clean.multipleHelp")}</small>}
-            {["rename", "combine"].includes(op) && (
-              <label>
-                {t("clean.newName")}
-                <input name="name" required maxLength={255} />
-              </label>
-            )}
-            {["fill_null", "replace", "filter"].includes(op) && (
-              <label>
-                {t("clean.value")}
-                <input name="value" maxLength={500} />
-              </label>
-            )}
-            {op === "replace" && (
-              <label>
-                {t("clean.oldValue")}
-                <input name="old" maxLength={500} />
-              </label>
-            )}
-            {op === "date" && (
-              <label>
-                {t("clean.dateFormat")}
-                <select name="formats">
-                  <option value="%Y-%m-%d">YYYY-MM-DD</option>
-                  <option value="%d/%m/%Y">DD/MM/YYYY</option>
-                  <option value="%m/%d/%Y">MM/DD/YYYY</option>
-                </select>
-              </label>
-            )}
-            {op === "number" && (
-              <div className="form-row">
-                <label>
-                  {t("clean.decimal")}
-                  <select name="decimal">
-                    <option value=".">.</option>
-                    <option value=",">,</option>
-                  </select>
-                </label>
-                <label>
-                  {t("clean.thousands")}
-                  <select name="thousands">
-                    <option value="">{t("clean.none")}</option>
-                    <option value=",">,</option>
-                    <option value=".">.</option>
-                    <option value=" ">{t("clean.space")}</option>
-                  </select>
-                </label>
-              </div>
-            )}
-            {op === "filter" && (
-              <label>
-                {t("clean.condition")}
-                <select name="operator">
-                  {["eq", "ne", "contains", "gt", "lt"].map((x) => (
-                    <option key={x} value={x}>
-                      {t(`clean.${x}`)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
-            {["split", "combine"].includes(op) && (
-              <label>
-                {t("clean.separator")}
-                <input
-                  name="separator"
-                  required={op === "split"}
-                  maxLength={10}
-                  defaultValue=" "
-                />
-              </label>
-            )}
-            {op === "split" && (
-              <label>
-                {t("clean.splitNames")}
-                <input
-                  name="names"
-                  required
-                  placeholder={t("clean.splitExample")}
-                />
-              </label>
-            )}
-            {op === "combine" && <small>{t("clean.combineNote")}</small>}
-            <button
-              className="secondary"
-              disabled={w.busy || w.steps.length >= 20}
-            >
-              <Plus size={16} />
-              {t("clean.add")}
-            </button>
-          </form>
+          <StepBuilder
+            columns={columns}
+            onAdd={(step) => w.updateSteps([...w.steps, step])}
+            busy={w.busy}
+            count={w.steps.length}
+          />
         </section>
         <section className="recipe-panel">
           <h2>{t("clean.recipe")}</h2>
@@ -285,6 +141,13 @@ export default function CleaningWorkspace({
           <p className="muted">{t("clean.previewNote")}</p>
         </section>
       </div>
+      <WorkflowSaveForm
+        detail={detail}
+        steps={w.steps}
+        datasets={datasets}
+        columns={columns}
+        disabled={w.busy}
+      />
       {w.preview && (
         <section className="recipe-panel preview-result">
           <div className="panel-title">

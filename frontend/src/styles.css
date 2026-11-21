@@ -1,4 +1,65 @@
 @import "tailwindcss";
+.success {
+  color: #236753;
+  background: #ecf6ef;
+  border-radius: 5px;
+  padding: 10px;
+}
+.section-summary {
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.workflow-steps {
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 2;
+}
+.workflow-steps span {
+  color: #64796e;
+}
+.workflow-edit {
+  margin-top: 18px;
+  padding-top: 15px;
+  border-top: 1px solid #e3eae3;
+}
+.workflow-edit summary {
+  cursor: pointer;
+}
+.run-list {
+  display: grid;
+  gap: 10px;
+}
+.run-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid #e3eae3;
+  padding: 10px 0;
+}
+.run-list > div > div {
+  display: grid;
+  gap: 5px;
+}
+.run-list small {
+  color: #64796e;
+  font-size: 11px;
+}
+@media (max-width: 600px) {
+  .shell aside nav {
+    overflow-x: auto;
+  }
+  .shell aside nav button {
+    min-width: 63px;
+    flex-shrink: 0;
+  }
+  .run-list > div {
+    flex-direction: column;
+  }
+  .run-list button {
+    align-self: start;
+  }
+}
 
 .cleaning-workspace {
   display: grid;

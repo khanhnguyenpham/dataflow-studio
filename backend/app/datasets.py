@@ -1,5 +1,6 @@
 import hashlib
 from pathlib import Path, PurePath
+from typing import Literal
 
 from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
 from sqlalchemy import func, select
@@ -12,6 +13,12 @@ from .workspace import check_storage, materialize, owned, summary
 
 router = APIRouter(prefix="/datasets")
 SAMPLE = (Path(__file__).resolve().parents[2] / "sample_data" / "monthly-sales.csv").read_bytes()
+SAMPLE_DIR = Path(__file__).resolve().parents[2] / "sample_data"
+SAMPLES = {
+    "sales": ("monthly-sales-sample.csv", SAMPLE),
+    "products": ("products.csv", (SAMPLE_DIR / "products.csv").read_bytes()),
+    "next-month": ("next-month-sales.csv", (SAMPLE_DIR / "next-month-sales.csv").read_bytes()),
+}
 
 
 def save(db, user, parsed, content, filename):
@@ -53,10 +60,16 @@ def datasets(user=Depends(identity), db=Depends(session_db)):
 
 
 @router.post("/sample", status_code=201)
-def sample(request: Request, user=Depends(identity), db=Depends(session_db)):
+def sample(
+    request: Request,
+    kind: Literal["sales", "products", "next-month"] = "sales",
+    user=Depends(identity),
+    db=Depends(session_db),
+):
     limited(request, "import", 30, 60)
-    parsed = parse_file(SAMPLE, "monthly-sales-sample.csv", request.app.state.settings)
-    return save(db, user, parsed, SAMPLE, "monthly-sales-sample.csv")
+    name, content = SAMPLES[kind]
+    parsed = parse_file(content, name, request.app.state.settings)
+    return save(db, user, parsed, content, name)
 
 
 @router.post("/import")

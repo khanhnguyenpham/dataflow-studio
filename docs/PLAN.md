@@ -34,4 +34,4 @@ Each slice goes through a feature branch and PR. Merge only after the exact comm
 
 ## Next slice
 
-Foundation/import and the cleaning/export slice are implemented. Next: reusable versioned workflow definitions, schema checks and controlled joins/append, followed by actual-data analytics. Keep the same owner boundary for every definition, input, preview and run.
+Foundation/import, cleaning/export and reusable workflows/integration are implemented. Next: aggregate actual confirmed versions, persist chart/KPI/filter definitions and export results; then admin/retention hardening and evaluated rule-based mapping. Keep owner boundaries for every input, version and derived report.
