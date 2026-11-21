@@ -10,14 +10,12 @@ test("welcome recovers from an unavailable session and switches locale", async (
   await i18n.changeLanguage("en");
   vi.stubGlobal(
     "fetch",
-    vi
-      .fn()
-      .mockResolvedValue(
-        new Response(JSON.stringify({ code: "unauthorized" }), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        }),
-      ),
+    vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ code: "unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      }),
+    ),
   );
   render(<App />);
   expect(

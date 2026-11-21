@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ArrowRight,
+  BrushCleaning,
   CheckCheck,
   ChevronLeft,
   ChevronRight,
@@ -19,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { useWorkspace } from "./useWorkspace";
+import CleaningWorkspace from "./CleaningWorkspace";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -196,6 +198,7 @@ export default function App() {
           {[
             ["datasets", Database],
             ["quality", CheckCheck],
+            ["cleaning", BrushCleaning],
             ["help", HelpCircle],
             ["account", Settings],
           ].map(([key, Icon]) => {
@@ -306,7 +309,7 @@ export default function App() {
               </div>
             </form>
           )}
-          {(tab === "datasets" || tab === "quality") && (
+          {["datasets", "quality", "cleaning"].includes(tab) && (
             <>
               <div className="dataset-bar">
                 <select
@@ -355,7 +358,13 @@ export default function App() {
                       </div>
                     ))}
                   </section>
-                  {tab === "datasets" ? (
+                  {tab === "cleaning" ? (
+                    <CleaningWorkspace
+                      key={`${w.detail.id}:${w.detail.version}`}
+                      detail={w.detail}
+                      changed={w.changed}
+                    />
+                  ) : tab === "datasets" ? (
                     <section className="data-panel">
                       <div className="panel-title">
                         <div>

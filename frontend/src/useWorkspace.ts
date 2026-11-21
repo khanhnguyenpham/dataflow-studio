@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   api,
   post,
@@ -19,10 +19,13 @@ export function useWorkspace() {
     [page, setPage] = useState(1),
     [detail, setDetail] = useState<Detail | null>(null),
     [profile, setProfile] = useState<Profile | null>(null),
-    [loading, setLoading] = useState(false);
+    [loading, setLoading] = useState(false),
+    [revision, setRevision] = useState(0);
+  const refreshGeneration = useRef(0);
   const refresh = useCallback(async () => {
+    const generation = ++refreshGeneration.current;
     const result = await api<{ items: Dataset[] }>("/datasets");
-    setDatasets(result.items);
+    if (generation === refreshGeneration.current) setDatasets(result.items);
   }, []);
   useEffect(() => {
     const controller = new AbortController();
@@ -37,6 +40,7 @@ export function useWorkspace() {
   useEffect(() => {
     if (user) void refresh().catch((e) => setError(e.code));
     else {
+      refreshGeneration.current++;
       setDatasets([]);
       setSelected("");
       setDetail(null);
@@ -72,7 +76,7 @@ export function useWorkspace() {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [selected, page]);
+  }, [selected, page, revision]);
   async function action<T>(work: () => Promise<T>) {
     setBusy(true);
     setError("");
@@ -169,5 +173,10 @@ export function useWorkspace() {
     logout,
     password,
     refresh,
+    changed: async () => {
+      await refresh();
+      setPage(1);
+      setRevision((n) => n + 1);
+    },
   };
 }

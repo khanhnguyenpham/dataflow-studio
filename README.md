@@ -6,11 +6,11 @@ DataFlow Studio is a web workspace for inspecting spreadsheets and building repe
 
 ## Current checkpoint
 
-The import/profiling foundation is being implemented. This is **not the finished platform** and there is no verified public deployment yet.
+Import, profiling, versioned cleaning and export work end to end. This is **not the finished platform** and there is no verified public deployment yet.
 
 Available in this working slice: isolated, two-hour guest sessions; sign-in and password changes; bounded CSV/XLSX imports; explicit selection of Excel sheets; dataset preview; missing values, duplicate rows, suggested types and review warnings; English/Vietnamese UI. Source bytes and values are retained without automatic correction. Accounts are created by an operator.
 
-Cleaning, export, reusable workflows, joins, analytics, admin screens and deployment are next milestones. They are not exposed as working navigation items. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and the [plan](docs/PLAN.md).
+Clean & export adds typed recipes, before/after previews, explicit apply, retained version history and restore, and CSV/XLSX/JSON/quality downloads. See the [cleaning guide](docs/CLEANING.md). Reusable workflows, joins, analytics, admin screens and deployment remain next milestones. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and the [plan](docs/PLAN.md).
 
 ![DataFlow workspace with the synthetic sales sample](docs/images/workspace-desktop.png)
 

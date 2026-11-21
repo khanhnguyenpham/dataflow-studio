@@ -34,4 +34,4 @@ Each slice goes through a feature branch and PR. Merge only after the exact comm
 
 ## Next slice
 
-After foundation acceptance, implement immutable dataset versions and cleaning preview/apply. Use the same owner boundary for every derived version, preview and export; avoid implementing workflow runs before transformation correctness is checked.
+Foundation/import and the cleaning/export slice are implemented. Next: reusable versioned workflow definitions, schema checks and controlled joins/append, followed by actual-data analytics. Keep the same owner boundary for every definition, input, preview and run.

@@ -8,33 +8,17 @@ from .auth import identity, limited, session_db
 from .db import Dataset, User
 from .errors import Problem
 from .processing import parse_file, profile
+from .workspace import check_storage, materialize, owned, summary
 
 router = APIRouter(prefix="/datasets")
 SAMPLE = (Path(__file__).resolve().parents[2] / "sample_data" / "monthly-sales.csv").read_bytes()
-
-
-def summary(row):
-    return {
-        "id": row.id,
-        "name": row.name,
-        "rows": row.row_count,
-        "columns": len(row.columns),
-        "sheet": row.source_sheet,
-        "created_at": row.created_at,
-    }
-
-
-def owned(db, user, key):
-    row = db.scalar(select(Dataset).where(Dataset.id == key, Dataset.owner_id == user.id))
-    if row is None:
-        raise Problem("dataset_not_found", 404)
-    return row
 
 
 def save(db, user, parsed, content, filename):
     # Serialize quota checks with inserts for one owner, including concurrent requests.
     if db.scalar(select(User).where(User.id == user.id).with_for_update()) is None:
         raise Problem("unauthorized", 401)
+    check_storage(db, user, len(content) + len(str(parsed).encode()) * 4)
     count, size = db.execute(
         select(func.count(Dataset.id), func.coalesce(func.sum(func.length(Dataset.original_bytes)), 0)).where(
             Dataset.owner_id == user.id
@@ -59,13 +43,13 @@ def save(db, user, parsed, content, filename):
     )
     db.add(row)
     db.commit()
-    return summary(row)
+    return summary(db, row)
 
 
 @router.get("")
 def datasets(user=Depends(identity), db=Depends(session_db)):
     rows = db.scalars(select(Dataset).where(Dataset.owner_id == user.id).order_by(Dataset.created_at.desc()))
-    return {"items": [summary(row) for row in rows]}
+    return {"items": [summary(db, row) for row in rows]}
 
 
 @router.post("/sample", status_code=201)
@@ -99,11 +83,12 @@ def detail(key: str, page: int = 1, page_size: int = 25, user=Depends(identity),
     if page < 1 or not 1 <= page_size <= 100:
         raise Problem("invalid_page")
     row = owned(db, user, key)
+    columns, records = materialize(db, row)
     start = (page - 1) * page_size
     return {
-        **summary(row),
-        "column_names": row.columns,
-        "records": row.records[start : start + page_size],
+        **summary(db, row),
+        "column_names": columns,
+        "records": records[start : start + page_size],
         "page": page,
         "page_size": page_size,
     }
@@ -112,7 +97,7 @@ def detail(key: str, page: int = 1, page_size: int = 25, user=Depends(identity),
 @router.get("/{key}/profile")
 def quality(key: str, user=Depends(identity), db=Depends(session_db)):
     row = owned(db, user, key)
-    return profile(row.columns, row.records)
+    return profile(*materialize(db, row))
 
 
 @router.delete("/{key}", status_code=204)

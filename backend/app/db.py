@@ -1,7 +1,18 @@
 from datetime import datetime, timezone
 import uuid
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, LargeBinary, String, create_engine, event
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Integer,
+    JSON,
+    LargeBinary,
+    String,
+    UniqueConstraint,
+    create_engine,
+    event,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
@@ -53,7 +64,34 @@ class Dataset(Base):
     columns: Mapped[list] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
     records: Mapped[list] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
     row_count: Mapped[int] = mapped_column(Integer)
+    current_version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class DatasetVersion(Base):
+    __tablename__ = "dataset_versions"
+    __table_args__ = (UniqueConstraint("dataset_id", "number"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=key)
+    dataset_id: Mapped[str] = mapped_column(ForeignKey("datasets.id", ondelete="CASCADE"), index=True)
+    number: Mapped[int] = mapped_column(Integer)
+    parent_number: Mapped[int] = mapped_column(Integer)
+    columns: Mapped[list] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
+    records: Mapped[list] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
+    row_count: Mapped[int] = mapped_column(Integer)
+    steps: Mapped[list] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class Preview(Base):
+    __tablename__ = "previews"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=key)
+    dataset_id: Mapped[str] = mapped_column(ForeignKey("datasets.id", ondelete="CASCADE"), index=True)
+    owner_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    input_version: Mapped[int] = mapped_column(Integer)
+    result: Mapped[dict] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
+    steps: Mapped[list] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    applied_version: Mapped[int | None] = mapped_column(Integer)
 
 
 def database(url):
