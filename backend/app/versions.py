@@ -1,5 +1,4 @@
 import csv
-from datetime import timedelta
 from io import BytesIO, StringIO
 import json
 
@@ -8,14 +7,23 @@ from openpyxl import Workbook
 from openpyxl.cell import WriteOnlyCell
 from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
 from pydantic import Field
-from sqlalchemy import delete, func, select
+from sqlalchemy import func, select
 
 from .auth import identity, limited, session_db
-from .db import DatasetVersion, Preview, User, as_utc, now
+from .db import DatasetVersion, Preview, as_utc, now
 from .errors import Problem
 from .processing import profile
 from .transforms import Step, Strict, apply_steps
-from .workspace import check_storage, materialize, owned, payload_budget, summary
+from .workspace import (
+    check_storage,
+    lock_owner,
+    materialize,
+    owned,
+    payload_budget,
+    preview_view,
+    save_preview,
+    summary,
+)
 
 router = APIRouter(prefix="/datasets")
 
@@ -36,11 +44,6 @@ class ExportRequest(Strict):
     confirmed: bool
 
 
-def lock_owner(db, user):
-    if db.scalar(select(User).where(User.id == user.id).with_for_update()) is None:
-        raise Problem("unauthorized", 401)
-
-
 @router.post("/{key}/preview")
 def preview(key: str, body: PreviewRequest, request: Request, user=Depends(identity), db=Depends(session_db)):
     limited(request, "preview", 30, 60)
@@ -48,46 +51,13 @@ def preview(key: str, body: PreviewRequest, request: Request, user=Depends(ident
     row = owned(db, user, key, lock=True)
     if row.current_version != body.expected_version:
         raise Problem("stale_version", 409)
-    db.execute(delete(Preview).where(Preview.owner_id == user.id, Preview.expires_at < now()))
-    # A newly previewed recipe supersedes this dataset's previous pending draft.
-    db.execute(
-        delete(Preview).where(Preview.owner_id == user.id, Preview.dataset_id == key, Preview.applied_version.is_(None))
-    )
-    pending = db.scalar(
-        select(func.count()).select_from(Preview).where(Preview.owner_id == user.id, Preview.applied_version.is_(None))
-    )
-    if pending >= 3:
-        raise Problem("preview_limit", 429)
     old_columns, old_records = materialize(db, row)
     columns, records, impacts = apply_steps(old_columns, old_records, body.steps, request.app.state.settings)
-    if len(json.dumps([columns, records], ensure_ascii=False).encode()) > request.app.state.settings.max_bytes * 2:
-        raise Problem("dataset_limit", 413)
-    result = {
-        "columns": columns,
-        "records": records,
-        "impacts": impacts,
-        "changed": columns != old_columns or records != old_records,
-    }
-    check_storage(db, user, payload_budget(result))
-    saved = Preview(
-        dataset_id=row.id,
-        owner_id=user.id,
-        input_version=row.current_version,
-        result=result,
-        steps=[s.model_dump() for s in body.steps],
-        expires_at=now() + timedelta(minutes=15),
+    saved = save_preview(
+        db, user, row, columns, records, [s.model_dump() for s in body.steps], impacts, request.app.state.settings
     )
-    db.add(saved)
     db.commit()
-    return {
-        "id": saved.id,
-        "input_version": saved.input_version,
-        "expires_at": saved.expires_at,
-        "before": {"columns": old_columns, "records": old_records[:10], "rows": len(old_records)},
-        "after": {"columns": columns, "records": records[:10], "rows": len(records)},
-        "impacts": impacts,
-        "changed": result["changed"],
-    }
+    return preview_view(saved, old_columns, old_records)
 
 
 @router.post("/{key}/preview/{preview_id}/apply")

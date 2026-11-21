@@ -11,7 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.middleware.cors import CORSMiddleware
 
-from . import auth, datasets, versions
+from . import auth, datasets, versions, workflows
 from .config import Settings
 from .db import database
 from .errors import Problem
@@ -115,6 +115,7 @@ def create_app(settings: Settings | None = None):
     app.include_router(auth.router, prefix="/api")
     app.include_router(datasets.router, prefix="/api")
     app.include_router(versions.router, prefix="/api")
+    app.include_router(workflows.router, prefix="/api")
     static = Path(__file__).resolve().parents[2] / "frontend" / "dist"
     if static.is_dir():
         app.mount("/", StaticFiles(directory=static, html=True), name="frontend")

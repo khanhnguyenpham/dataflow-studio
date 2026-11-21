@@ -104,9 +104,11 @@ export function useWorkspace() {
       }
     });
   }
-  async function sample() {
+  async function sample(kind = "sales") {
     await action(async () => {
-      const row = await post<Dataset>("/datasets/sample");
+      const row = await post<Dataset>(
+        `/datasets/sample?kind=${encodeURIComponent(kind)}`,
+      );
       await refresh();
       setSelected(row.id);
       setPage(1);

@@ -18,9 +18,11 @@ import {
   Trash2,
   UploadCloud,
   X,
+  Workflow,
 } from "lucide-react";
 import { useWorkspace } from "./useWorkspace";
 import CleaningWorkspace from "./CleaningWorkspace";
+import WorkflowWorkspace from "./WorkflowWorkspace";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -33,6 +35,7 @@ export default function App() {
     [sheet, setSheet] = useState(""),
     [encoding, setEncoding] = useState("utf-8-sig"),
     [notice, setNotice] = useState("");
+  const [sampleKind, setSampleKind] = useState("sales");
   const fmt = (n: number) => new Intl.NumberFormat(i18n.language).format(n);
   const date = (s: string) =>
     new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium" }).format(
@@ -199,6 +202,7 @@ export default function App() {
             ["datasets", Database],
             ["quality", CheckCheck],
             ["cleaning", BrushCleaning],
+            ["workflows", Workflow],
             ["help", HelpCircle],
             ["account", Settings],
           ].map(([key, Icon]) => {
@@ -327,11 +331,20 @@ export default function App() {
                 <button
                   className="secondary"
                   disabled={w.busy}
-                  onClick={() => void w.sample()}
+                  onClick={() => void w.sample(sampleKind)}
                 >
                   <FlaskConical size={16} />
                   {t("sample")}
                 </button>
+                <select
+                  aria-label={t("wf.sampleType")}
+                  value={sampleKind}
+                  onChange={(e) => setSampleKind(e.target.value)}
+                >
+                  <option value="sales">{t("wf.salesSample")}</option>
+                  <option value="products">{t("wf.productSample")}</option>
+                  <option value="next-month">{t("wf.nextSample")}</option>
+                </select>
               </div>
               {w.loading ? (
                 loading
@@ -363,6 +376,7 @@ export default function App() {
                       key={`${w.detail.id}:${w.detail.version}`}
                       detail={w.detail}
                       changed={w.changed}
+                      datasets={w.datasets}
                     />
                   ) : tab === "datasets" ? (
                     <section className="data-panel">
@@ -510,6 +524,9 @@ export default function App() {
                 </>
               )}
             </>
+          )}
+          {tab === "workflows" && (
+            <WorkflowWorkspace datasets={w.datasets} changed={w.changed} />
           )}
           {tab === "help" && (
             <section className="help">
