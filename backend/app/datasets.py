@@ -1,21 +1,16 @@
 import hashlib
-from pathlib import PurePath
+from pathlib import Path, PurePath
 
 from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
 from sqlalchemy import func, select
 
 from .auth import identity, limited, session_db
-from .db import Dataset
+from .db import Dataset, User
 from .errors import Problem
 from .processing import parse_file, profile
 
 router = APIRouter(prefix="/datasets")
-SAMPLE = (
-    "Order ID,Order Date,Product Code,Quantity,Unit Price\n"
-    "001,2026-10-01,P01,2,120000\n002,02/10/2026,P02,1,75000\n"
-    "002,02/10/2026,P02,1,75000\n003,31/02/2026,P03,,90000\n"
-    "004,2026-10-05,P04,three,100000\n005,2026-10-06,P01,250,120000\n"
-).encode()
+SAMPLE = (Path(__file__).resolve().parents[2] / "sample_data" / "monthly-sales.csv").read_bytes()
 
 
 def summary(row):
@@ -37,6 +32,9 @@ def owned(db, user, key):
 
 
 def save(db, user, parsed, content, filename):
+    # Serialize quota checks with inserts for one owner, including concurrent requests.
+    if db.scalar(select(User).where(User.id == user.id).with_for_update()) is None:
+        raise Problem("unauthorized", 401)
     count, size = db.execute(
         select(func.count(Dataset.id), func.coalesce(func.sum(func.length(Dataset.original_bytes)), 0)).where(
             Dataset.owner_id == user.id

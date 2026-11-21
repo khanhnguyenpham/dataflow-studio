@@ -1,5 +1,6 @@
 from io import BytesIO
 from datetime import timedelta
+from concurrent.futures import ThreadPoolExecutor
 import pytest
 from fastapi.testclient import TestClient
 from openpyxl import Workbook
@@ -79,6 +80,25 @@ def test_chunked_request_cannot_bypass_body_limit(guest):
     response = guest.post("/api/datasets/import", content=chunks, headers={"Content-Type": "application/octet-stream"})
     assert response.status_code == 413
     assert response.json()["code"] == "file_too_large"
+
+
+def test_postgres_serializes_concurrent_guest_quota(guest, app):
+    if app.state.engine.dialect.name != "postgresql":
+        pytest.skip("Row-lock concurrency contract is PostgreSQL-specific")
+    for _ in range(2):
+        assert guest.post("/api/datasets/sample").status_code == 201
+    cookies = dict(guest.cookies)
+    csrf = guest.headers["X-CSRF-Token"]
+
+    def upload():
+        with TestClient(app) as other:
+            other.cookies.update(cookies)
+            return other.post("/api/datasets/sample", headers={"X-CSRF-Token": csrf}).status_code
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        statuses = list(pool.map(lambda _: upload(), range(2)))
+    assert sorted(statuses) == [201, 413]
+    assert len(guest.get("/api/datasets").json()["items"]) == 3
 
 
 def test_real_owner_authorization_for_detail_profile_and_delete(guest, app):
