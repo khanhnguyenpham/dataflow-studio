@@ -1,0 +1,70 @@
+name: Checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: dataflow
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d dataflow"
+          --health-interval 5s --health-timeout 5s --health-retries 15
+    env:
+      DATABASE_URL: postgresql+psycopg://postgres@localhost:5432/dataflow
+      TEST_DATABASE_URL: postgresql+psycopg://postgres@localhost:5432/dataflow_test
+      COOKIE_SECURE: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - name: Install and migrate
+        run: |
+          pip install -r backend/requirements.lock
+          python - <<'PY'
+          import psycopg
+          with psycopg.connect('postgresql://postgres@localhost:5432/postgres', autocommit=True) as db:
+              db.execute('CREATE DATABASE dataflow_test')
+          PY
+          python -m alembic -c backend/alembic.ini upgrade head
+      - name: Backend
+        run: |
+          ruff check backend
+          pytest -q
+          pip check
+      - name: Frontend
+        working-directory: frontend
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm lint
+          pnpm test
+          pnpm build
+      - name: Browser workflow
+        working-directory: frontend
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          pnpm e2e
+      - name: Container startup
+        env:
+          POSTGRES_PASSWORD: temporary-ci-password-no-production-use
+        run: |
+          docker compose up --build -d --wait
+          curl --fail http://127.0.0.1:8080/api/health
+      - name: Container cleanup
+        if: always()
+        env:
+          POSTGRES_PASSWORD: temporary-ci-password-no-production-use
+        run: docker compose down -v
