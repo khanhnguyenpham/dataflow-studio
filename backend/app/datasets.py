@@ -6,10 +6,12 @@ from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
 from sqlalchemy import func, select
 
 from .auth import identity, limited, session_db
-from .db import Dataset, User
+from .db import Dataset
+from .audit import record
+from .limits import cap, current_limits
 from .errors import Problem
 from .processing import parse_file, profile
-from .workspace import check_storage, materialize, owned, summary
+from .workspace import check_storage, lock_owner, materialize, owned, payload_budget, summary
 
 router = APIRouter(prefix="/datasets")
 SAMPLE = (Path(__file__).resolve().parents[2] / "sample_data" / "monthly-sales.csv").read_bytes()
@@ -23,18 +25,16 @@ SAMPLES = {
 
 def save(db, user, parsed, content, filename):
     # Serialize quota checks with inserts for one owner, including concurrent requests.
-    if db.scalar(select(User).where(User.id == user.id).with_for_update()) is None:
-        raise Problem("unauthorized", 401)
-    check_storage(db, user, len(content) + len(str(parsed).encode()) * 4)
+    lock_owner(db, user)
+    limits = current_limits(db)
+    budget = len(content) + payload_budget([parsed["columns"], parsed["records"]])
+    check_storage(db, user, budget)
     count, size = db.execute(
         select(func.count(Dataset.id), func.coalesce(func.sum(func.length(Dataset.original_bytes)), 0)).where(
             Dataset.owner_id == user.id
         )
     ).one()
-    if (
-        count >= (3 if user.role == "guest" else 30)
-        or size + len(content) > (10 if user.role == "guest" else 50) * 1024 * 1024
-    ):
+    if count >= cap(limits, user, "datasets") or size + len(content) > cap(limits, user, "source_mb") * 1024 * 1024:
         raise Problem("workspace_limit", 413)
     filename = PurePath(filename.replace("\\", "/")).name[:255]
     row = Dataset(
@@ -47,8 +47,11 @@ def save(db, user, parsed, content, filename):
         columns=parsed["columns"],
         records=parsed["records"],
         row_count=len(parsed["records"]),
+        storage_bytes=budget,
     )
     db.add(row)
+    db.flush()
+    record(db, user, "dataset.imported", row.id, {"rows": row.row_count, "source_bytes": len(content)})
     db.commit()
     return summary(db, row)
 
@@ -115,6 +118,8 @@ def quality(key: str, user=Depends(identity), db=Depends(session_db)):
 
 @router.delete("/{key}", status_code=204)
 def remove(key: str, user=Depends(identity), db=Depends(session_db)):
+    lock_owner(db, user)
     row = owned(db, user, key)
+    record(db, user, "dataset.deleted", key)
     db.delete(row)
     db.commit()

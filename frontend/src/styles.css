@@ -1,4 +1,51 @@
 @import "tailwindcss";
+.admin-tabs {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.admin-tabs button[aria-pressed="true"] {
+  background: #28766f;
+  color: white;
+  border: 1px solid #28766f;
+}
+.admin-create {
+  display: grid;
+  grid-template-columns: 1fr 1fr 160px auto;
+  gap: 14px;
+  align-items: end;
+  margin-top: 16px;
+}
+.password-reset {
+  min-width: 240px;
+  margin-top: 12px;
+}
+.limits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+  margin: 22px 0;
+}
+.maintenance-action {
+  border-top: 1px solid #dfe7e0;
+  margin-top: 20px;
+  padding-top: 16px;
+}
+@media (max-width: 1000px) {
+  .admin-create {
+    grid-template-columns: 1fr 1fr;
+  }
+  .limits-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 640px) {
+  .admin-create,
+  .limits-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .analytics-form {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

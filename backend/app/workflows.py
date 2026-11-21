@@ -9,6 +9,8 @@ from pydantic import Field, TypeAdapter
 from sqlalchemy import func, select
 
 from .auth import identity, limited, session_db
+from .audit import record
+from .limits import cap, current_limits
 from .aggregation import AggregateSpec, aggregate, result_columns
 from .db import Preview, as_utc, now
 from .errors import Problem
@@ -135,7 +137,7 @@ def save_definition(db, user, body, settings, row=None):
     check_storage(db, user, payload_budget(result))
     if row is None:
         count = db.scalar(select(func.count()).select_from(Workflow).where(Workflow.owner_id == user.id))
-        if count >= (5 if user.role == "guest" else 20):
+        if count >= cap(current_limits(db), user, "workflows"):
             raise Problem("workflow_limit", 413)
         row = Workflow(owner_id=user.id, name=body.name.strip(), description=body.description, current_version=1)
         db.add(row)
@@ -151,7 +153,12 @@ def save_definition(db, user, body, settings, row=None):
     if not body.name.strip():
         raise Problem("invalid_request")
     row.name, row.description, row.updated_at = body.name.strip(), body.description, now()
-    db.add(WorkflowVersion(workflow_id=row.id, number=row.current_version, definition=result))
+    db.add(
+        WorkflowVersion(
+            workflow_id=row.id, number=row.current_version, definition=result, storage_bytes=payload_budget(result)
+        )
+    )
+    record(db, user, "workflow.saved", row.id, {"version": row.current_version})
     db.commit()
     return {**view(row), "definition": result}
 
@@ -181,6 +188,7 @@ def update(key: str, body: DefinitionRequest, request: Request, user=Depends(ide
 def remove(key: str, user=Depends(identity), db=Depends(session_db)):
     lock_owner(db, user)
     db.delete(owned_workflow(db, user, key))
+    record(db, user, "workflow.deleted", key)
     db.commit()
 
 
@@ -214,7 +222,7 @@ def enqueue(key: str, body: RunRequest, request: Request, user=Depends(identity)
     elif body.right_dataset_id:
         raise Problem("invalid_request")
     count = db.scalar(select(func.count()).select_from(WorkflowRun).join(Workflow).where(Workflow.owner_id == user.id))
-    if count >= (30 if user.role == "guest" else 200):
+    if count >= cap(current_limits(db), user, "runs"):
         raise Problem("run_limit", 413)
     row = WorkflowRun(
         workflow_id=key,

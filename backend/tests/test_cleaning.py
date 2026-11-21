@@ -35,7 +35,7 @@ def test_explicit_types_ambiguity_and_original_values():
     with pytest.raises(Problem) as caught:
         run(["date"], [["02/03/2026"]], [{"op": "date", "column": "date", "formats": ["%d/%m/%Y", "%m/%d/%Y"]}])
     assert caught.value.code == "invalid_values"
-    for value in ["1,23.00", "NaN", "1e100000", "Infinity"]:
+    for value in ["1,23.00", "NaN", "1e100000", "Infinity", "9" * 10000]:
         with pytest.raises(Problem):
             run(["n"], [[value]], [{"op": "number", "column": "n", "thousands": ","}])
 

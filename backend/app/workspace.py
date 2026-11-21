@@ -1,8 +1,9 @@
 import json
 from datetime import timedelta
-from sqlalchemy import Text, cast, delete, func, select
-from .db import Dataset, DatasetVersion, Preview, User, now
+from sqlalchemy import delete, func, select
+from .db import Dataset, DatasetVersion, Preview, User, as_utc, now
 from .errors import Problem
+from .limits import cap, config_row, current_limits, storage_usage
 
 
 def owned(db, user, key, lock=False):
@@ -46,62 +47,12 @@ def summary(db, row):
 
 
 def check_storage(db, user, extra=0):
-    """Conservative UTF-8 budget, including pending previews and retained versions.
-
-    Four bytes per database JSON character is an upper bound, rather than assuming
-    a character is one byte. Caller must hold the owner row lock before writing.
-    """
-    source = db.scalar(
-        select(
-            func.coalesce(
-                func.sum(
-                    func.length(Dataset.original_bytes)
-                    + 4 * (func.length(cast(Dataset.columns, Text)) + func.length(cast(Dataset.records, Text)))
-                ),
-                0,
-            )
-        ).where(Dataset.owner_id == user.id)
-    )
-    derived = db.scalar(
-        select(
-            func.coalesce(
-                func.sum(
-                    4
-                    * (
-                        func.length(cast(DatasetVersion.columns, Text))
-                        + func.length(cast(DatasetVersion.records, Text))
-                        + func.length(cast(DatasetVersion.steps, Text))
-                    )
-                ),
-                0,
-            )
-        )
-        .join(Dataset, Dataset.id == DatasetVersion.dataset_id)
-        .where(Dataset.owner_id == user.id)
-    )
-    pending = db.scalar(
-        select(
-            func.coalesce(
-                func.sum(4 * (func.length(cast(Preview.result, Text)) + func.length(cast(Preview.steps, Text)))), 0
-            )
-        ).where(Preview.owner_id == user.id)
-    )
-    from .workflow_models import Workflow, WorkflowVersion
-
-    recipes = db.scalar(
-        select(func.coalesce(func.sum(4 * func.length(cast(WorkflowVersion.definition, Text))), 0))
-        .join(Workflow, Workflow.id == WorkflowVersion.workflow_id)
-        .where(Workflow.owner_id == user.id)
-    )
-    from .report_models import Report
-
-    reports = db.scalar(
-        select(func.coalesce(func.sum(4 * func.length(cast(Report.specification, Text))), 0)).where(
-            Report.owner_id == user.id
-        )
-    )
-    if source + derived + pending + recipes + reports + extra > (64 if user.role == "guest" else 256) * 1024 * 1024:
+    """Cached conservative payload budgets; caller holds global then owner lock."""
+    limits = current_limits(db)
+    if storage_usage(db, user.id) + extra > cap(limits, user, "storage_mb") * 1024 * 1024:
         raise Problem("workspace_limit", 413)
+    if storage_usage(db) + extra > limits.global_storage_mb * 1024 * 1024:
+        raise Problem("service_storage_limit", 413)
 
 
 def payload_budget(value):
@@ -109,8 +60,15 @@ def payload_budget(value):
 
 
 def lock_owner(db, user):
-    if db.scalar(select(User).where(User.id == user.id).with_for_update()) is None:
+    # One small configuration row serializes global storage checks across writers.
+    config_row(db, lock=True)
+    current = db.scalar(
+        select(User).where(User.id == user.id).with_for_update().execution_options(populate_existing=True)
+    )
+    if current is None or not current.active:
         raise Problem("unauthorized", 401)
+    if current.expires_at and as_utc(current.expires_at) <= now():
+        raise Problem("session_expired", 401)
 
 
 def save_preview(db, user, row, columns, records, steps, impacts, settings, metadata=None):
@@ -135,12 +93,14 @@ def save_preview(db, user, row, columns, records, steps, impacts, settings, meta
         "changed": columns != old_columns or records != old_records,
         "metadata": metadata or {},
     }
-    check_storage(db, user, payload_budget([result, steps]))
+    budget = payload_budget([result, steps])
+    check_storage(db, user, budget)
     saved = Preview(
         dataset_id=row.id,
         owner_id=user.id,
         input_version=row.current_version,
         result=result,
+        storage_bytes=budget,
         steps=steps,
         expires_at=now() + timedelta(minutes=15),
     )

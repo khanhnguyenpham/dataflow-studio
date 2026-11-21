@@ -18,7 +18,7 @@
   "import": "Nhập dữ liệu",
   "sample": "Tải dữ liệu mẫu",
   "chooseFile": "Chọn tệp CSV hoặc Excel",
-  "fileHelp": "CSV hoặc XLSX · Tối đa 5 MB, 10.000 dòng và 100 cột. Giá trị gốc được giữ nguyên.",
+  "fileHelp": "CSV hoặc XLSX · Tối đa {{mb}} MiB, {{rows}} dòng và {{columns}} cột. Giữ nguyên giá trị gốc.",
   "encoding": "Bảng mã CSV",
   "sheet": "Trang tính",
   "importNow": "Nhập tệp",
@@ -68,7 +68,7 @@
   "help1": "Chọn mẫu bán hàng hoặc nhập CSV/XLSX của bạn. Nếu Excel có nhiều trang tính, chọn một trang cần đọc.",
   "help2": "Mở Chất lượng dữ liệu để xem ô thiếu, dòng trùng và các giá trị cần kiểm tra. Mã định danh giữ nguyên số 0 ở đầu.",
   "help3": "Mở Làm sạch & xuất để xem trước và xác nhận các bước. Lưu quy trình để chạy với tệp mới. Kiểm tra kết quả trước khi áp dụng và xuất tệp.",
-  "help4": "Dữ liệu dùng thử được tách riêng giữa người truy cập, hết hạn sau 2 giờ và được xóa khi tác vụ dọn dữ liệu chạy. Không tải thông tin cá nhân hoặc bí mật lên không gian dùng thử công khai.",
+  "help4": "Dữ liệu guest được cách ly và hết quyền truy cập sau 2 giờ. Khi máy chủ chạy, tác vụ dọn dữ liệu kiểm tra mỗi phút và lúc khởi động. Không tải dữ liệu cá nhân hay bí mật vào guest public.",
   "schema": "Cấu trúc",
   "inspect": "Kiểm tra",
   "sampleLabel": "Bán hàng tháng giả lập",
@@ -131,7 +131,14 @@
     "line_axis": "Biểu đồ đường cần nhóm ngày ISO hoặc số đã chuẩn hóa, không có ô trống. Dùng biểu đồ cột cho danh mục.",
     "pie_values": "Biểu đồ tròn cần phép đếm/tổng, tối đa 8 nhóm, giá trị không âm và tổng dương.",
     "report_not_found": "Báo cáo không còn hoặc thuộc không gian khác.",
-    "report_limit": "Đã đạt giới hạn báo cáo. Xóa báo cáo không dùng."
+    "report_limit": "Đã đạt giới hạn báo cáo. Xóa báo cáo không dùng.",
+    "last_admin": "Phải giữ lại ít nhất một tài khoản quản trị đang bật.",
+    "invalid_username": "Dùng 3–100 chữ cái, chữ số, dấu chấm, gạch ngang hoặc gạch dưới.",
+    "username_exists": "Tên đăng nhập này đã được dùng.",
+    "account_limit": "Đã đạt giới hạn tài khoản thường.",
+    "account_not_found": "Không tìm thấy tài khoản.",
+    "guest_capacity": "Đã đủ số không gian guest đang dùng. Thử lại sau hoặc đăng nhập tài khoản thường.",
+    "service_storage_limit": "Đã đạt dung lượng chung. Người quản trị cần kiểm tra dữ liệu hết hạn và giới hạn."
   },
   "cleaning": "Làm sạch & xuất",
   "clean": {
@@ -303,5 +310,116 @@
     "emptyResult": "Không có giá trị số để vẽ với cấu hình này.",
     "chartLimit": "Biểu đồ hiển thị 20 nhóm có số đầu tiên. Bảng và tệp xuất có đầy đủ nhóm."
   },
-  "analyticsNav": "Phân tích"
+  "analyticsNav": "Phân tích",
+  "administration": "Quản trị",
+  "adminPanel": {
+    "scope": "Quản lý truy cập, thông tin vận hành và giới hạn dịch vụ. Quyền quản trị không cho phép đọc bảng của người khác.",
+    "users": "Tài khoản",
+    "limits": "Giới hạn sử dụng",
+    "audit": "Nhật ký hoạt động",
+    "refresh": "Làm mới",
+    "status": "Trạng thái dịch vụ",
+    "active_guests": "Guest đang hoạt động",
+    "datasets": "Bảng dữ liệu",
+    "failed_runs": "Lượt chạy lỗi",
+    "create": "Tạo tài khoản",
+    "role": "Quyền",
+    "state": "Trạng thái",
+    "actions": "Thao tác",
+    "active": "Đang bật",
+    "disabled": "Đã khóa",
+    "roleFor": "Quyền của {{name}}",
+    "activeFor": "Bật tài khoản {{name}}",
+    "apply": "Lưu thay đổi",
+    "changeConfirm": "Lưu thay đổi tài khoản? Thay đổi quyền sẽ thu hồi mọi phiên đăng nhập của tài khoản này.",
+    "resetPassword": "Đặt lại mật khẩu",
+    "resetConfirm": "Đặt lại mật khẩu và thu hồi mọi phiên đăng nhập?",
+    "passwordNote": "Gửi thông tin đăng nhập ban đầu qua kênh riêng. Đề nghị chủ tài khoản đổi mật khẩu. Danh sách và nhật ký không hiện mật khẩu.",
+    "accountCount": "{{count}} tài khoản",
+    "limitNote": "Giới hạn áp dụng cho lần ghi tiếp theo; hạ giới hạn không xóa dữ liệu cũ. Dung lượng tính theo ước lượng bảo thủ, không phải kích thước tệp cơ sở dữ liệu thực.",
+    "storage": "Dung lượng đã tính: {{used}} MiB / {{limit}} MiB",
+    "limitConfirm": "Cập nhật các giới hạn dịch vụ? Dữ liệu hiện có vẫn được giữ.",
+    "saveLimits": "Lưu giới hạn",
+    "retention": "Khi ứng dụng đang chạy, tác vụ dọn guest, bản xem trước và phiên hết hạn mỗi phút. Nhật ký giữ tối đa 30 ngày và khoảng 5.000 sự kiện.",
+    "cleanup": "Dọn dữ liệu hết hạn",
+    "auditNote": "Nhật ký chỉ lưu thông tin thao tác; không chứa mật khẩu, mã phiên hay giá trị ô đã tải lên.",
+    "noAudit": "Chưa có sự kiện.",
+    "time": "Thời gian",
+    "action": "Thao tác",
+    "details": "Chi tiết",
+    "actor": "ID người thao tác",
+    "target": "ID đối tượng",
+    "system": "Hệ thống / tài khoản đã xóa",
+    "saved": "Đã lưu thay đổi.",
+    "runs": "Lượt chạy quy trình",
+    "filterState": "Trạng thái lượt chạy",
+    "allStates": "Mọi trạng thái",
+    "noRuns": "Chưa có lượt chạy phù hợp bộ lọc.",
+    "runError": "Lỗi"
+  },
+  "quota": {
+    "guest_datasets": "Số bảng của guest",
+    "user_datasets": "Số bảng của người dùng",
+    "guest_source_mb": "Tệp nguồn guest (MiB)",
+    "user_source_mb": "Tệp nguồn người dùng (MiB)",
+    "guest_storage_mb": "Dung lượng guest (MiB)",
+    "user_storage_mb": "Dung lượng người dùng (MiB)",
+    "guest_versions": "Phiên bản dẫn xuất mỗi bảng guest",
+    "user_versions": "Phiên bản dẫn xuất mỗi bảng người dùng",
+    "guest_workflows": "Quy trình của guest",
+    "user_workflows": "Quy trình của người dùng",
+    "guest_runs": "Lịch sử chạy của guest",
+    "user_runs": "Lịch sử chạy của người dùng",
+    "guest_reports": "Báo cáo lưu của guest",
+    "user_reports": "Báo cáo lưu của người dùng",
+    "active_guest_limit": "Số không gian guest đồng thời",
+    "global_storage_mb": "Dung lượng chung (MiB)"
+  },
+  "auditAction": {
+    "session": {
+      "started": "Bắt đầu phiên",
+      "ended": "Đăng xuất"
+    },
+    "account": {
+      "created": "Tạo tài khoản",
+      "updated": "Đổi quyền truy cập",
+      "password_reset": "Đặt lại mật khẩu",
+      "password_changed": "Đổi mật khẩu",
+      "created_by_operator": "Người vận hành tạo tài khoản"
+    },
+    "dataset": {
+      "imported": "Nhập bảng dữ liệu",
+      "deleted": "Xóa bảng dữ liệu",
+      "version_applied": "Áp dụng phiên bản dữ liệu",
+      "restored": "Khôi phục phiên bản dữ liệu"
+    },
+    "workflow": {
+      "saved": "Lưu quy trình",
+      "deleted": "Xóa quy trình"
+    },
+    "report": {
+      "saved": "Lưu báo cáo",
+      "deleted": "Xóa báo cáo"
+    },
+    "limits": {
+      "updated": "Đổi giới hạn dịch vụ"
+    },
+    "retention": {
+      "pruned": "Dọn dữ liệu hết hạn"
+    }
+  },
+  "auditField": {
+    "role": "Quyền",
+    "active": "Đang bật",
+    "rows": "Số dòng",
+    "source_bytes": "Byte nguồn",
+    "version": "Phiên bản",
+    "parent": "Phiên bản trước",
+    "dataset_version": "Phiên bản dữ liệu",
+    "fields": "Giới hạn đã đổi",
+    "revision": "Phiên bản cấu hình",
+    "guests": "Guest",
+    "previews": "Bản xem trước",
+    "sessions": "Phiên đăng nhập"
+  }
 }

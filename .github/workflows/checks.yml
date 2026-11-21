@@ -19,6 +19,7 @@ jobs:
     env:
       DATABASE_URL: postgresql+psycopg://postgres@localhost:5432/dataflow
       TEST_DATABASE_URL: postgresql+psycopg://postgres@localhost:5432/dataflow_test
+      E2E_DATABASE_URL: postgresql+psycopg://postgres@localhost:5432/dataflow_e2e
       COOKIE_SECURE: 'false'
     steps:
       - uses: actions/checkout@v4
@@ -38,6 +39,7 @@ jobs:
           import psycopg
           with psycopg.connect('postgresql://postgres@localhost:5432/postgres', autocommit=True) as db:
               db.execute('CREATE DATABASE dataflow_test')
+              db.execute('CREATE DATABASE dataflow_e2e')
           PY
           python -m alembic -c backend/alembic.ini upgrade head
       - name: Backend
@@ -56,7 +58,12 @@ jobs:
         working-directory: frontend
         run: |
           pnpm exec playwright install --with-deps chromium
-          pnpm e2e
+          PYTHONPATH=../backend DATABASE_URL="$E2E_DATABASE_URL" python -m alembic -c ../backend/alembic.ini upgrade head
+          PYTHONPATH=../backend DATABASE_URL="$E2E_DATABASE_URL" python ../backend/tests/browser_accounts.py create
+          python ../backend/tests/browser_runner.py
+      - name: Browser fixture cleanup
+        if: always()
+        run: PYTHONPATH=backend DATABASE_URL="$E2E_DATABASE_URL" python backend/tests/browser_accounts.py cleanup
       - name: Container startup
         env:
           POSTGRES_PASSWORD: temporary-ci-password-no-production-use

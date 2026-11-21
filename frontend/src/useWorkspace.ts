@@ -22,6 +22,23 @@ export function useWorkspace() {
     [loading, setLoading] = useState(false),
     [revision, setRevision] = useState(0);
   const refreshGeneration = useRef(0);
+  const [uploadLimits, setUploadLimits] = useState<{
+    upload_max_bytes: number;
+    max_rows: number;
+    max_columns: number;
+  } | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    api<{ upload_max_bytes: number; max_rows: number; max_columns: number }>(
+      "/config",
+      { signal: controller.signal },
+    )
+      .then(setUploadLimits)
+      .catch((e) => {
+        if (!controller.signal.aborted) setError(e.code ?? "network");
+      });
+    return () => controller.abort();
+  }, []);
   const refresh = useCallback(async () => {
     const generation = ++refreshGeneration.current;
     const result = await api<{ items: Dataset[] }>("/datasets");
@@ -140,7 +157,11 @@ export function useWorkspace() {
   }
   async function logout() {
     await action(async () => {
-      await post("/auth/logout");
+      try {
+        await post("/auth/logout");
+      } catch (e) {
+        if (!(e instanceof ApiError && e.status === 401)) throw e;
+      }
       setUser(null);
     });
   }
@@ -175,6 +196,16 @@ export function useWorkspace() {
     logout,
     password,
     refresh,
+    uploadLimits,
+    refreshIdentity: async () => {
+      try {
+        const result = await api<{ user: User }>("/auth/session");
+        setUser(result.user);
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 401) setUser(null);
+        else throw e;
+      }
+    },
     changed: async () => {
       await refresh();
       setPage(1);

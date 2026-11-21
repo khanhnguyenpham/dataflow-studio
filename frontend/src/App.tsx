@@ -25,6 +25,7 @@ import { useWorkspace } from "./useWorkspace";
 import CleaningWorkspace from "./CleaningWorkspace";
 import WorkflowWorkspace from "./WorkflowWorkspace";
 import AnalyticsWorkspace from "./AnalyticsWorkspace";
+import AdminWorkspace from "./AdminWorkspace";
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -208,6 +209,9 @@ export default function App() {
             ["analytics", BarChart3],
             ["help", HelpCircle],
             ["account", Settings],
+            ...(w.user.role === "admin"
+              ? [["administration", ShieldCheck]]
+              : []),
           ].map(([key, Icon]) => {
             const ViewIcon = Icon as typeof Database;
             return (
@@ -274,7 +278,15 @@ export default function App() {
                   }}
                 />
               </label>
-              <p className="muted">{t("fileHelp")}</p>
+              <p className="muted">
+                {w.uploadLimits
+                  ? t("fileHelp", {
+                      mb: fmt(w.uploadLimits.upload_max_bytes / 1024 / 1024),
+                      rows: fmt(w.uploadLimits.max_rows),
+                      columns: fmt(w.uploadLimits.max_columns),
+                    })
+                  : t("loading")}
+              </p>
               <div className="form-row">
                 <label>
                   {t("encoding")}
@@ -534,6 +546,12 @@ export default function App() {
             <WorkflowWorkspace datasets={w.datasets} changed={w.changed} />
           )}
           {tab === "analytics" && <AnalyticsWorkspace datasets={w.datasets} />}
+          {tab === "administration" && w.user.role === "admin" && (
+            <AdminWorkspace
+              ownId={w.user.id}
+              sessionChanged={w.refreshIdentity}
+            />
+          )}
           {tab === "help" && (
             <section className="help">
               <h2>{t("helpTitle")}</h2>

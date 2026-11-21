@@ -9,10 +9,12 @@ from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError
 from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 
 from .db import LoginSession, User, as_utc, now
 from .errors import Problem
+from .audit import record
+from .limits import config_row, current_limits
 
 router = APIRouter(prefix="/auth")
 hasher = PasswordHasher()
@@ -66,12 +68,25 @@ def user_view(user):
 
 
 def issue(request, response, db, user):
+    from .workspace import lock_owner
+
+    lock_owner(db, user)
     token = secrets.token_urlsafe(32)
     old = request.cookies.get("dataflow_session")
     if old:
         db.execute(delete(LoginSession).where(LoginSession.digest == digest(old)))
     expiry = now() + timedelta(hours=2 if user.role == "guest" else 8)
     db.add(LoginSession(digest=digest(token), user_id=user.id, expires_at=expiry))
+    old_sessions = (
+        select(LoginSession.digest)
+        .where(LoginSession.user_id == user.id)
+        .order_by(LoginSession.expires_at.desc())
+        .offset(8)
+    )
+    db.execute(
+        delete(LoginSession).where(LoginSession.digest.in_(old_sessions)).execution_options(synchronize_session=False)
+    )
+    record(db, user, "session.started")
     db.commit()
     response.set_cookie(
         "dataflow_session",
@@ -105,9 +120,15 @@ def limited(request, kind, limit, seconds):
 
 @router.post("/guest")
 def guest(request: Request, response: Response, db=Depends(session_db)):
-    limited(request, "guest", 5, 300)
+    limited(request, "guest", 10, 300)
+    config_row(db, lock=True)
     # Guest data is deliberately ephemeral and is cascade-deleted by the pruning command.
     db.execute(delete(User).where(User.role == "guest", User.expires_at < now()))
+    if (
+        db.scalar(select(func.count()).select_from(User).where(User.role == "guest", User.expires_at > now()))
+        >= current_limits(db).active_guest_limit
+    ):
+        raise Problem("guest_capacity", 429)
     user = User(username="guest-" + secrets.token_hex(8), role="guest", expires_at=now() + timedelta(hours=2))
     db.add(user)
     db.flush()
@@ -125,6 +146,11 @@ def login(body: Credentials, request: Request, response: Response, db=Depends(se
         valid = False
     if not valid or not user or not user.active or user.role == "guest":
         raise Problem("invalid_login", 401)
+    from .workspace import lock_owner
+
+    lock_owner(db, user)
+    if user.password_hash != stored:
+        raise Problem("invalid_login", 401)
     return issue(request, response, db, user)
 
 
@@ -135,6 +161,10 @@ def session(request: Request, user=Depends(identity)):
 
 @router.post("/logout", status_code=204)
 def logout(request: Request, response: Response, user=Depends(identity), db=Depends(session_db)):
+    from .workspace import lock_owner
+
+    lock_owner(db, user)
+    record(db, user, "session.ended")
     db.execute(delete(LoginSession).where(LoginSession.digest == digest(request.cookies["dataflow_session"])))
     db.commit()
     response.delete_cookie(
@@ -144,6 +174,9 @@ def logout(request: Request, response: Response, user=Depends(identity), db=Depe
 
 @router.post("/password", status_code=204)
 def password(body: PasswordChange, response: Response, user=Depends(identity), db=Depends(session_db)):
+    from .workspace import lock_owner
+
+    lock_owner(db, user)
     if user.role == "guest":
         raise Problem("forbidden", 403)
     try:
@@ -152,5 +185,6 @@ def password(body: PasswordChange, response: Response, user=Depends(identity), d
         raise Problem("invalid_login", 401) from None
     user.password_hash = hasher.hash(body.new_password)
     db.execute(delete(LoginSession).where(LoginSession.user_id == user.id))
+    record(db, user, "account.password_changed", user.id)
     db.commit()
     response.delete_cookie("dataflow_session", path="/api")
