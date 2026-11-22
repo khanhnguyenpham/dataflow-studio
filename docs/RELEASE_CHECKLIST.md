@@ -3,7 +3,7 @@
 ## Verified locally on 22 November 2026
 
 - Real PostgreSQL API/integration checks, Ruff, scoped engine mypy, frontend lint/tests/build.
-- All eight browser flows passed with Recharts; the added release flow
+- All ten browser flows passed after the workspace continuity change; the release flow
   checks rule failures and six widths (360/390/430/768/1366/1920).
 - Automated axe checks passed for quality at those widths and the desktop analytics report. They do not
   certify the whole application, screen-reader experience or WCAG conformance.
@@ -48,6 +48,10 @@ runs separately from timings. Reproduce with
 - Completed for PR #9: source diff/credential review, exact feature-head CI,
   merged-main CI at 31425b50aeb1952c6c64db6572b339ac6076d221 and deployed SHA/health.
 - Pending: final handoff documentation CI and release tag after operator action.
+- Completed for PR #11: exact feature-head and merged-main CI at
+  9cf543f0d25ba1d4ef295880ccfb452fabb6340f, observed Live, 13 further public API
+  checks and native Edge Overview navigation. Latest continuity changes have
+  separate local evidence; their exact-commit CI and rollout must pass in turn.
 - Create v1.0.0 only after the remaining gates pass. A version string is not a tag.
 
 See [public verification](PUBLIC_VERIFICATION.md) for direct observations and

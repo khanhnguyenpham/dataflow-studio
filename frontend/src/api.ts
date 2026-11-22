@@ -53,10 +53,33 @@ export class ApiError extends Error {
   }
 }
 let csrf = "";
-export async function api<T>(
-  path: string,
-  options: RequestInit = {},
-): Promise<T> {
+let sessionGeneration = 0;
+let authenticated = false;
+const expiryListeners = new Set<() => void>();
+
+// Invalidate pending responses when an identity changes. Tokens stay in memory.
+export function setSessionAuthenticated(active: boolean) {
+  sessionGeneration++;
+  authenticated = active;
+  if (!active) csrf = "";
+}
+
+export function onSessionExpired(listener: () => void) {
+  expiryListeners.add(listener);
+  return () => {
+    expiryListeners.delete(listener);
+  };
+}
+
+function checkGeneration(generation: number | null) {
+  if (generation !== null && generation !== sessionGeneration)
+    throw new DOMException("The active session changed.", "AbortError");
+}
+
+async function request(path: string, options: RequestInit) {
+  const generation = ["/config", "/health"].includes(path)
+    ? null
+    : sessionGeneration;
   const headers = new Headers(options.headers);
   if (options.method && options.method !== "GET")
     headers.set("X-CSRF-Token", csrf);
@@ -71,12 +94,34 @@ export async function api<T>(
     if (e instanceof DOMException && e.name === "AbortError") throw e;
     throw new ApiError("network", 0);
   }
+  checkGeneration(generation);
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ code: "unknown" }));
+    checkGeneration(generation);
+    // Wrong credentials/current password are not evidence of session expiry.
+    if (
+      response.status === 401 &&
+      authenticated &&
+      ["unauthorized", "session_expired"].includes(error.code)
+    ) {
+      setSessionAuthenticated(false);
+      expiryListeners.forEach((listener) => listener());
+    }
+    throw new ApiError(error.code ?? "unknown", response.status, error.details);
+  }
+  return { response, generation };
+}
+
+export async function api<T>(
+  path: string,
+  options: RequestInit = {},
+): Promise<T> {
+  const { response, generation } = await request(path, options);
   const data =
     response.status === 204
       ? undefined
       : await response.json().catch(() => ({ code: "unknown" }));
-  if (!response.ok)
-    throw new ApiError(data.code ?? "unknown", response.status, data.details);
+  checkGeneration(generation);
   if (data?.csrf) csrf = data.csrf;
   return data as T;
 }
@@ -88,17 +133,14 @@ export const post = <T>(path: string, body?: unknown) =>
   });
 
 export async function download(path: string, body: unknown, name: string) {
-  const response = await fetch(`/api${path}`, {
+  const { response, generation } = await request(path, {
     method: "POST",
-    credentials: "same-origin",
-    headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ code: "unknown" }));
-    throw new ApiError(error.code ?? "unknown", response.status, error.details);
-  }
-  const url = URL.createObjectURL(await response.blob());
+  const blob = await response.blob();
+  checkGeneration(generation);
+  const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = name;

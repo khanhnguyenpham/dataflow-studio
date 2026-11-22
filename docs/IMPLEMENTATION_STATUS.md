@@ -26,6 +26,7 @@ no v1.0 tag is claimed at this checkpoint.
 | Release quality | #7 | 09436ae99ec267454a2cee6e5a97b90ddfe91cd9 | Feature-head and merged-main CI passed |
 | Handoff documentation | #8 | 41b117c2761d7041295a23ec8501409726ef61c8 | Feature-head and merged-main CI passed |
 | Public release preparation | #9 | 31425b50aeb1952c6c64db6572b339ac6076d221 | Feature-head and merged-main CI passed; deployed Live |
+| Product workspace | #11 | 9cf543f0d25ba1d4ef295880ccfb452fabb6340f | Feature-head and merged-main CI passed; deployed Live; 13 further public API checks |
 
 Historical local release-quality checks before this preparation slice: **60 backend tests with PostgreSQL integration**, Ruff and dependency consistency passed. **3 frontend tests**, ESLint and TypeScript/Vite build passed. **8 Edge browser flows** passed on a dedicated `dataflow_e2e` database, including admin account/limit/audit operations, English/VI, desktop/mobile, two-month join reuse, preview/apply/restore, all chart types and real downloaded JSON comparison. Ephemeral browser credentials were deleted after testing and are never committed. Real screenshots are in `docs/images`.
 
@@ -46,8 +47,8 @@ source CI integration/browser suite, capacity testing or an independent security
 ## Release handoff
 
 Render Free serves React/FastAPI; a dedicated Neon Free PostgreSQL 18 project
-holds persistent data. The live application is now version 1.0.0 at PR #9's main
-SHA above. After deployment, the same guest session could read the same synthetic
+holds persistent data. The public application uses version 1.0.0 at PR #11's main
+SHA above. In the earlier PR #9 deployment probe, the same guest session could read the same synthetic
 dataset/version, including ID `001` and quantity `12`; its fixture was then removed.
 See [deployment](evaluation/public-deployment.json) and
 [persistence evidence](evaluation/public-persistence.json).
@@ -76,4 +77,13 @@ authentication contracts are retained. [Details and preflight evidence](PRODUCT_
 This slice passed 62 backend tests with real PostgreSQL, 4 React tests,
 Ruff/scoped mypy, ESLint/build and all 9 Edge browser flows. Scoped Welcome and
 six-width Overview accessibility/overflow checks passed after correcting small
-text contrast. Exact-commit CI and public rollout are separate gates for this slice.
+text contrast. Exact-head and merged-main CI subsequently passed for PR #11, and
+its main SHA was observed Live with 13 additional public API checks and native
+Edge navigation. This is separate from the initial 42-check public acceptance.
+
+The next continuity change retains cleaning recipe steps during navigation in
+the same signed-in tab, requires fresh previews on return, handles expired/revoked
+sessions centrally and rejects stale responses after an identity change. Its
+local checks passed: 14 React tests, lint/build and all 10 Edge flows. No backend
+or database contract changed. New exact-commit CI and public rollout remain
+separate gates; see [workspace behavior](PRODUCT_WORKSPACE.md).

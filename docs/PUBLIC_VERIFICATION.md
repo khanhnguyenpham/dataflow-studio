@@ -15,6 +15,18 @@ See [post-deploy evidence](evaluation/public-deployment.json). This slice change
 version metadata and verification tools/docs, retaining the processing behavior
 tested in the first public acceptance run. It is not yet a published release tag.
 
+The product workspace in PR #11 was deployed at
+`9cf543f0d25ba1d4ef295880ccfb452fabb6340f`, after its exact merged-main
+[CI passed](https://github.com/khanhnguyenpham/dataflow-studio/actions/runs/45026526251).
+Render reported Live at that SHA. Thirteen additional named public API checks
+passed with fresh synthetic owners: real metadata counts, pending/completed runs,
+execution distinct from apply, current-version counts after apply/restore, a
+version-pinned sum of **5**, and zero metadata for the peer. Only fixtures created
+by that check were removed and both sessions closed. Native Edge also displayed
+the new Vietnamese Overview with one auto-loaded sample. The
+[PR rollout record](https://github.com/khanhnguyenpham/dataflow-studio/pull/11)
+records this later observation; it does not relabel the original 42-check evidence.
+
 ## Functional acceptance over HTTPS
 
 [Machine-readable result](evaluation/public-api.json) records 42 unique named
