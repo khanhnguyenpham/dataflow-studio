@@ -13,8 +13,10 @@ they are not a measured production throughput claim.
 Optional first-admin secrets run at startup under the configuration lock. A
 persistent completion flag prevents restarts from resetting or re-promoting
 accounts. There is no HTTP bootstrap endpoint or default administrator.
-Free hosting targets one Docker service with external persistent PostgreSQL;
-actual provisioning and public verification remain open. See [deployment](DEPLOYMENT.md).
+The public deployment uses one Render Free Docker service with external Neon
+PostgreSQL 18. HTTPS functionality and source provenance were verified separately
+from local/container checks. See [deployment](DEPLOYMENT.md) and the
+[public verification record](PUBLIC_VERIFICATION.md).
 
 React calls the same-origin `/api` service. FastAPI validates typed requests, authenticates cookie/CSRF state and scopes every dataset/workflow/report query to its owner. Pure processing functions receive rows and limits rather than HTTP objects or database sessions. This is a bounded modular monolith, with one application instance.
 

@@ -1,0 +1,16 @@
+{
+  "recorded_at": "2026-11-22T07:06:05.759767+00:00",
+  "base_url": "https://dataflow-studio.onrender.com",
+  "deployed_commit_observed_in_console": "31425b50aeb1952c6c64db6572b339ac6076d221",
+  "exact_main_ci": "https://github.com/khanhnguyenpham/dataflow-studio/actions/runs/44996111648",
+  "main_ci_conclusion": "success",
+  "render_console_observation": "Deploy succeeded and Live at the exact source SHA after manual deploy",
+  "api_health": {
+    "status": "ok",
+    "version": "1.0.0"
+  },
+  "react_entry_status": 200,
+  "react_asset_references_present": true,
+  "scope": "Post-deploy health/React entry plus separately recorded controlled PostgreSQL/session persistence; functional acceptance refers to the earlier source commit with unchanged processing behavior.",
+  "credentials_or_resource_ids_recorded": false
+}

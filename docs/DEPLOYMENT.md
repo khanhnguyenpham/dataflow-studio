@@ -4,7 +4,9 @@ Live application: **https://dataflow-studio.onrender.com/**. The first deploymen
 of `41b117c2761d7041295a23ec8501409726ef61c8` was observed Live in Render and
 verified over HTTPS on 22 November 2026. See the
 [public verification record](PUBLIC_VERIFICATION.md) for checks and limits.
-Controlled restart and final operator handoff remain release gates.
+Version 1.0.0 now runs at `31425b50aeb1952c6c64db6572b339ac6076d221`, with exact
+main CI and controlled session/data persistence across replacement verified.
+Private operator password/bootstrap-secret handoff remains a release gate.
 
 ## Free hosting target
 

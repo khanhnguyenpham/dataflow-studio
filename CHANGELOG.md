@@ -5,8 +5,9 @@
 - Verified a real public Render Free/FastAPI/React deployment with Neon PostgreSQL.
 - Added bounded synthetic HTTPS acceptance and restart-persistence tools, a public
   verification record and live application/user instructions in both READMEs.
-- Centralized API version metadata at 1.0.0. The release tag waits for remaining
-  restart, private operator-handoff and final CI/deployment checks.
+- Centralized API version metadata at 1.0.0 and deployed PR #9's verified main
+  commit. A controlled replacement preserved the same guest session and SQL data.
+  The release tag waits for private operator handoff and final documentation CI.
 
 ## Unreleased — release quality
 

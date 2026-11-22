@@ -17,7 +17,10 @@ Evidence: [benchmark](evaluation/engine-benchmark.json),
 [backup drill](evaluation/backup-restore.json),
 [dependency audit](evaluation/dependency-audit.json),
 [mapping regression](evaluation/schema-mapping.json),
-[public HTTPS checks](evaluation/public-api.json).
+[public HTTPS checks](evaluation/public-api.json),
+[public browser observations](evaluation/public-browser.json),
+[deployment](evaluation/public-deployment.json),
+[persistence](evaluation/public-persistence.json).
 
 The benchmark runs five deterministic steps, profile and grouped sum on 10,000
 synthetic rows (9,000 output), twenty measured repetitions after warmup. Local
@@ -39,10 +42,12 @@ runs separately from timings. Reproduce with
 - Completed: existing operator login reaches Administration; operator owns private
   backups, quota monitoring and retention. Local backup drill is not cloud recovery.
 - Completed: real URL and reproducible checks added to both READMEs.
-- Pending: controlled restart with the same guest session and synthetic dataset.
+- Completed: controlled replacement from version 0.1.0 to 1.0.0 with the same
+  guest session, dataset/version, leading-zero ID and quantity preserved.
 - Pending: owner password rotation and removal of first-admin bootstrap secrets.
-- Pending: final source diff/credential review, exact feature-head CI, merged-main
-  CI and final deployed SHA/health verification for release preparation.
+- Completed for PR #9: source diff/credential review, exact feature-head CI,
+  merged-main CI at 31425b50aeb1952c6c64db6572b339ac6076d221 and deployed SHA/health.
+- Pending: final handoff documentation CI and release tag after operator action.
 - Create v1.0.0 only after the remaining gates pass. A version string is not a tag.
 
 See [public verification](PUBLIC_VERIFICATION.md) for direct observations and

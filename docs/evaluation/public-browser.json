@@ -1,0 +1,48 @@
+{
+  "recorded_date": "2026-11-22",
+  "base_url": "https://dataflow-studio.onrender.com",
+  "source_commit": "41b117c2761d7041295a23ec8501409726ef61c8",
+  "observed_in_edge": {
+    "synthetic_csv_import": true,
+    "grouped_sum_displayed": "12",
+    "groups_displayed": 3,
+    "report_saved_at_dataset_version": 1,
+    "english_to_vietnamese_switch": true,
+    "existing_operator_sign_in": true,
+    "administration_and_usage_limits_read_only": true
+  },
+  "root_workspace_width_measurements": [
+    {
+      "css_width": 360,
+      "page_width": 360,
+      "horizontal_overflow": false
+    },
+    {
+      "css_width": 390,
+      "page_width": 390,
+      "horizontal_overflow": false
+    },
+    {
+      "css_width": 430,
+      "page_width": 430,
+      "horizontal_overflow": false
+    },
+    {
+      "css_width": 768,
+      "page_width": 768,
+      "horizontal_overflow": false
+    },
+    {
+      "css_width": 1366,
+      "page_width": 1366,
+      "horizontal_overflow": false
+    },
+    {
+      "css_width": 1920,
+      "page_width": 1920,
+      "horizontal_overflow": false
+    }
+  ],
+  "scope": "Direct public browser observations. November CSV was derived locally by deduplication before import; public browser apply was not completed in this check. API apply and separate source-CI preview/apply/restore flows are recorded independently. Layout measurements cover root workspace navigation, not every screen/table.",
+  "credentials_or_resource_ids_recorded": false
+}

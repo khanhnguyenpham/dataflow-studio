@@ -41,9 +41,10 @@ live: public HTTPS acceptance passed 42 named checks on commit
 cleanup. Public browser import/analytics, language switching and six-width root
 layout checks were observed; existing operator login reached Administration.
 
-Prepare version 1.0.0 through a reviewed feature branch, retaining existing
-processing behavior. Before tagging: complete the controlled service-restart
-persistence check, owner password rotation/bootstrap-secret removal, exact-head
-and merged-main CI, and verify the final deployed SHA/health. No automatic CD
-claim: the current public-Git deployment is manual after green CI. See
+Version 1.0.0 preparation merged through PR #9 after exact feature-head CI.
+Merged-main CI passed at `31425b50aeb1952c6c64db6572b339ac6076d221`; Render Live,
+HTTPS health/React entry and same-session SQL persistence across replacement
+were verified. Processing behavior was retained. Before tagging: finish private
+owner password rotation/bootstrap-secret removal and record the final handoff.
+No automatic CD claim: the current public-Git deployment is manual after green CI. See
 [verification](PUBLIC_VERIFICATION.md) and [release gates](RELEASE_CHECKLIST.md).

@@ -51,7 +51,8 @@ nguồn và các bước đã làm.
 
 ## Chạy lại công việc hằng tháng
 
-1. Nạp mẫu tháng 10, danh mục sản phẩm và tháng 11; vừa đủ ba bảng của phiên khách.
+1. Giữ mẫu tháng 10 đã có trong phiên khách mới. Nạp thêm danh mục sản phẩm và
+   tháng 11, mỗi mẫu một lần; vừa đủ ba bảng. Không nạp tháng 10 lần thứ hai.
 2. Chọn tháng 10, thêm bước xóa trùng theo **Order ID**. Mở phần lưu quy trình,
    đặt tên và chọn ghép trái với danh mục theo **Product Code**.
 3. Trong **Quy trình**, chọn nguồn và danh mục rồi chạy. Kết quả xem trước có năm
