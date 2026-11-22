@@ -1,0 +1,114 @@
+{
+  "scope": "Small manually labelled synthetic header fixtures; not general ML performance.",
+  "fixture_sha256": "92eb10c5088b3f17bf61814f23a72f5034f6772d3e2982a1d7c100dc7b9a9395",
+  "min_score": 0.78,
+  "min_margin": 0.12,
+  "splits": {
+    "validation": {
+      "normalized_name_only": {
+        "fields": 8,
+        "correct_decisions": 3,
+        "suggestions": 3,
+        "correct_suggestions": 3,
+        "abstentions": 5,
+        "suggestion_precision": 1.0,
+        "suggestion_coverage": 0.375,
+        "mistakes": [
+          {
+            "case": "english-aliases",
+            "target": "Product Code",
+            "expected": "sku",
+            "actual": null
+          },
+          {
+            "case": "english-aliases",
+            "target": "Quantity",
+            "expected": "qty",
+            "actual": null
+          },
+          {
+            "case": "vietnamese",
+            "target": "Product Code",
+            "expected": "Mã hàng",
+            "actual": null
+          },
+          {
+            "case": "vietnamese",
+            "target": "Quantity",
+            "expected": "Số lượng",
+            "actual": null
+          },
+          {
+            "case": "vietnamese",
+            "target": "Order Date",
+            "expected": "Ngày đặt",
+            "actual": null
+          }
+        ]
+      },
+      "rules_and_similarity": {
+        "fields": 8,
+        "correct_decisions": 8,
+        "suggestions": 8,
+        "correct_suggestions": 8,
+        "abstentions": 0,
+        "suggestion_precision": 1.0,
+        "suggestion_coverage": 1.0,
+        "mistakes": []
+      }
+    },
+    "test": {
+      "normalized_name_only": {
+        "fields": 16,
+        "correct_decisions": 11,
+        "suggestions": 5,
+        "correct_suggestions": 5,
+        "abstentions": 11,
+        "suggestion_precision": 1.0,
+        "suggestion_coverage": 0.3125,
+        "mistakes": [
+          {
+            "case": "case-and-punctuation",
+            "target": "Total Amount",
+            "expected": "Revenue",
+            "actual": null
+          },
+          {
+            "case": "unseen-customer-variant",
+            "target": "Customer ID",
+            "expected": "MA_KH",
+            "actual": null
+          },
+          {
+            "case": "unseen-customer-variant",
+            "target": "Email",
+            "expected": "Email Address",
+            "actual": null
+          },
+          {
+            "case": "spelling-variant",
+            "target": "Customer Identifier",
+            "expected": "Customer Identifer",
+            "actual": null
+          },
+          {
+            "case": "missing-date",
+            "target": "Quantity",
+            "expected": "qty",
+            "actual": null
+          }
+        ]
+      },
+      "rules_and_similarity": {
+        "fields": 16,
+        "correct_decisions": 16,
+        "suggestions": 10,
+        "correct_suggestions": 10,
+        "abstentions": 6,
+        "suggestion_precision": 1.0,
+        "suggestion_coverage": 0.625,
+        "mistakes": []
+      }
+    }
+  }
+}

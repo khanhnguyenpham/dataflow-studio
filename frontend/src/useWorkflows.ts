@@ -108,6 +108,11 @@ export function useWorkflows(
     setResult({ run, preview });
   }
   return {
+    inputsChanged: async () => {
+      await changed();
+      setError("");
+      setResult(null);
+    },
     items,
     selected,
     detail,

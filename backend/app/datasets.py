@@ -4,6 +4,7 @@ from typing import Literal
 
 from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
 from sqlalchemy import func, select
+from sqlalchemy.orm import load_only
 
 from .auth import identity, limited, session_db
 from .db import Dataset
@@ -20,6 +21,7 @@ SAMPLES = {
     "sales": ("monthly-sales-sample.csv", SAMPLE),
     "products": ("products.csv", (SAMPLE_DIR / "products.csv").read_bytes()),
     "next-month": ("next-month-sales.csv", (SAMPLE_DIR / "next-month-sales.csv").read_bytes()),
+    "variant": ("next-month-variant.csv", (SAMPLE_DIR / "next-month-variant.csv").read_bytes()),
 }
 
 
@@ -58,14 +60,29 @@ def save(db, user, parsed, content, filename):
 
 @router.get("")
 def datasets(user=Depends(identity), db=Depends(session_db)):
-    rows = db.scalars(select(Dataset).where(Dataset.owner_id == user.id).order_by(Dataset.created_at.desc()))
+    rows = db.scalars(
+        select(Dataset)
+        .options(
+            load_only(
+                Dataset.id,
+                Dataset.name,
+                Dataset.row_count,
+                Dataset.columns,
+                Dataset.current_version,
+                Dataset.source_sheet,
+                Dataset.created_at,
+            )
+        )
+        .where(Dataset.owner_id == user.id)
+        .order_by(Dataset.created_at.desc())
+    )
     return {"items": [summary(db, row) for row in rows]}
 
 
 @router.post("/sample", status_code=201)
 def sample(
     request: Request,
-    kind: Literal["sales", "products", "next-month"] = "sales",
+    kind: Literal["sales", "products", "next-month", "variant"] = "sales",
     user=Depends(identity),
     db=Depends(session_db),
 ):

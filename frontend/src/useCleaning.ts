@@ -1,7 +1,20 @@
 import { useEffect, useState } from "react";
 import { api, post, download, ApiError, type Detail } from "./api";
 
-export type Step = { op: string; [key: string]: string | string[] };
+export interface ColumnMapping {
+  source: string;
+  target: string;
+}
+export interface Step {
+  op: string;
+  columns?: string[];
+  column?: string;
+  name?: string;
+  names?: string[];
+  mapping?: ColumnMapping[];
+  keep_extras?: boolean;
+  [key: string]: string | string[] | ColumnMapping[] | boolean | undefined;
+}
 export interface Slice {
   columns: string[];
   records: (string | null)[][];

@@ -138,7 +138,8 @@
     "account_limit": "The permanent-account limit was reached.",
     "account_not_found": "This account is unavailable.",
     "guest_capacity": "All guest workspaces are currently in use. Try later or sign in with a permanent account.",
-    "service_storage_limit": "The service payload budget was reached. Ask an administrator to review retention and limits."
+    "service_storage_limit": "The service payload budget was reached. Ask an administrator to review retention and limits.",
+    "mapping_conflict": "A source column cannot be mapped to more than one target."
   },
   "cleaning": "Clean & export",
   "clean": {
@@ -207,7 +208,8 @@
     "number": "Normalize numbers",
     "filter": "Filter rows",
     "split": "Split column",
-    "combine": "Combine columns"
+    "combine": "Combine columns",
+    "map_columns": "Align and reorder columns"
   },
   "workflows": "Workflows",
   "wf": {
@@ -421,5 +423,30 @@
     "guests": "Guests",
     "previews": "Previews",
     "sessions": "Sessions"
+  },
+  "mapping": {
+    "title": "Check and align column names",
+    "explain": "Suggestions compare names using normalization, bilingual aliases and text similarity. They do not inspect values or infer business meaning. Review every choice; no changes are automatic.",
+    "check": "Suggest matching columns",
+    "expected": "Workflow column",
+    "source": "Column in this input",
+    "score": "Similarity rule score",
+    "choose": "Input column for {{target}}",
+    "review": "Choose after review",
+    "manual": "Manual review",
+    "normalized_name": "Normalized name",
+    "alias_rule": "Alias rule",
+    "text_similarity": "Text similarity",
+    "incomplete": "Choose one different input column for each workflow column. Missing or ambiguous choices require review.",
+    "extras": "Input columns outside this mapping:",
+    "drop": "Remove these extra columns from the derived version. Keep the original file unchanged.",
+    "confirmNote": "The preview orders columns as required by the workflow and renames only the fields you selected. Similarity scores are not probabilities.",
+    "preview": "Preview column alignment",
+    "before": "Current column order",
+    "after": "Proposed column order",
+    "apply": "Confirm column alignment",
+    "saved": "Column changes saved as a new dataset version. Run the workflow again to validate it.",
+    "aligned": "These columns already match; no changes need applying.",
+    "variantSample": "November: changed column names"
   }
 }

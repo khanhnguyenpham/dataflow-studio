@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
-test.use({trace:"off"});
+test.use({ trace: "off" });
 
 test("administrator creates an account, enforces access and reviews limits/audit", async ({
   page,
@@ -44,14 +44,12 @@ test("administrator creates an account, enforces access and reviews limits/audit
   await expect(
     page.getByRole("cell", { name: credentials.target_username, exact: true }),
   ).toBeVisible();
-  const row = page
-    .getByRole("row")
-    .filter({
-      has: page.getByRole("cell", {
-        name: credentials.target_username,
-        exact: true,
-      }),
-    });
+  const row = page.getByRole("row").filter({
+    has: page.getByRole("cell", {
+      name: credentials.target_username,
+      exact: true,
+    }),
+  });
   page.on("dialog", (dialog) => dialog.accept());
   await row.getByRole("checkbox").uncheck();
   await row.getByRole("button", { name: "Save changes", exact: true }).click();

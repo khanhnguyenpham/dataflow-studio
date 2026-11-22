@@ -98,7 +98,10 @@ class Preview(Base):
 
 
 def database(url):
-    kwargs = {"connect_args": {"check_same_thread": False}} if url.startswith("sqlite") else {"pool_pre_ping": True}
+    kwargs = {"connect_args": {"check_same_thread": False}} if url.startswith("sqlite") else {
+        "pool_pre_ping": True, "pool_timeout": 10, "pool_size": 5, "max_overflow": 3,
+        "connect_args": {"connect_timeout": 5},
+    }
     engine = create_engine(url, **kwargs)
     if url.startswith("sqlite"):
 

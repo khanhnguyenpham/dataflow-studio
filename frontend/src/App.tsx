@@ -361,6 +361,7 @@ export default function App() {
                   <option value="sales">{t("wf.salesSample")}</option>
                   <option value="products">{t("wf.productSample")}</option>
                   <option value="next-month">{t("wf.nextSample")}</option>
+                  <option value="variant">{t("mapping.variantSample")}</option>
                 </select>
               </div>
               {w.loading ? (

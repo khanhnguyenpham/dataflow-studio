@@ -1,17 +1,46 @@
 import json
 from datetime import timedelta
 from sqlalchemy import delete, func, select
+from sqlalchemy.orm import defer, load_only
 from .db import Dataset, DatasetVersion, Preview, User, as_utc, now
 from .errors import Problem
 from .limits import cap, config_row, current_limits, storage_usage
 
 
-def owned(db, user, key, lock=False):
+def owned(db, user, key, lock=False, metadata_only=False):
     query = select(Dataset).where(Dataset.id == key, Dataset.owner_id == user.id)
+    if metadata_only:
+        query = query.options(
+            load_only(
+                Dataset.id,
+                Dataset.owner_id,
+                Dataset.name,
+                Dataset.columns,
+                Dataset.row_count,
+                Dataset.current_version,
+                Dataset.source_sheet,
+                Dataset.created_at,
+            )
+        )
+    else:
+        query = query.options(defer(Dataset.original_bytes))
     row = db.scalar(query.with_for_update() if lock else query)
     if row is None:
         raise Problem("dataset_not_found", 404)
     return row
+
+
+def columns_of(db, row):
+    if row.current_version == 1:
+        return row.columns
+    columns = db.scalar(
+        select(DatasetVersion.columns).where(
+            DatasetVersion.dataset_id == row.id, DatasetVersion.number == row.current_version
+        )
+    )
+    if columns is None:
+        raise Problem("version_not_found", 404)
+    return columns
 
 
 def materialize(db, row, number=None):

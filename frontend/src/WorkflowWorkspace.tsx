@@ -4,6 +4,7 @@ import type { Dataset } from "./api";
 import { useWorkflows } from "./useWorkflows";
 import StepBuilder from "./StepBuilder";
 import { recipeColumns } from "./recipes";
+import SchemaAssistant from "./SchemaAssistant";
 
 export default function WorkflowWorkspace({
   datasets,
@@ -209,6 +210,23 @@ export default function WorkflowWorkspace({
                   </label>
                 )}
                 <p className="muted">{t("wf.runNote")}</p>
+                {datasets.find((d) => d.id === w.input) && (
+                  <SchemaAssistant
+                    key={`source:${w.input}`}
+                    source={datasets.find((d) => d.id === w.input)!}
+                    targets={definition.input_schema}
+                    changed={w.inputsChanged}
+                  />
+                )}
+                {definition.integration &&
+                  datasets.find((d) => d.id === w.lookup) && (
+                    <SchemaAssistant
+                      key={`lookup:${w.lookup}`}
+                      source={datasets.find((d) => d.id === w.lookup)!}
+                      targets={definition.integration.right_schema}
+                      changed={w.inputsChanged}
+                    />
+                  )}
                 <button
                   disabled={
                     w.busy ||
