@@ -34,4 +34,16 @@ Each slice goes through a feature branch and PR. Merge only after the exact comm
 
 ## Next slice
 
-Foundation/import, cleaning/export, workflows/integration and saved analytics are implemented. Administrator controls and bounded retention now pass local checks. Reviewed rule-based mapping and its small labelled regression evaluation now pass local checks. Release quality now includes Recharts, non-mutating validation rules, explainable profile bounds/distributions, resource admission, one-time admin bootstrap, extra fixtures, guides, scoped type checking, advisory scans, a local engine benchmark and a guarded backup/restore drill. PR #7 merged after exact feature-head CI passed. Merged-main CI also passed. Next: owner sign-in/provisioning and public verification. Keep owner boundaries for every input, version and derived report.
+Milestones 0–7 and release-quality source are implemented. PRs #1–#8 passed
+exact feature-head and merged-main CI. Dedicated Free Render/Neon resources are
+live: public HTTPS acceptance passed 42 named checks on commit
+`41b117c2761d7041295a23ec8501409726ef61c8`, with synthetic-only data and fixture
+cleanup. Public browser import/analytics, language switching and six-width root
+layout checks were observed; existing operator login reached Administration.
+
+Prepare version 1.0.0 through a reviewed feature branch, retaining existing
+processing behavior. Before tagging: complete the controlled service-restart
+persistence check, owner password rotation/bootstrap-secret removal, exact-head
+and merged-main CI, and verify the final deployed SHA/health. No automatic CD
+claim: the current public-Git deployment is manual after green CI. See
+[verification](PUBLIC_VERIFICATION.md) and [release gates](RELEASE_CHECKLIST.md).

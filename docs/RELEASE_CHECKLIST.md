@@ -16,7 +16,8 @@
 Evidence: [benchmark](evaluation/engine-benchmark.json),
 [backup drill](evaluation/backup-restore.json),
 [dependency audit](evaluation/dependency-audit.json),
-[mapping regression](evaluation/schema-mapping.json).
+[mapping regression](evaluation/schema-mapping.json),
+[public HTTPS checks](evaluation/public-api.json).
 
 The benchmark runs five deterministic steps, profile and grouped sum on 10,000
 synthetic rows (9,000 output), twenty measured repetitions after warmup. Local
@@ -30,13 +31,20 @@ runs separately from timings. Reproduce with
 - Review final source diff, ignored runtime and credential scan.
 - Completed in PR #7: exact feature-head CI passed.
 - Completed: merged main 09436ae99ec267454a2cee6e5a97b90ddfe91cd9 passed [CI](https://github.com/khanhnguyenpham/dataflow-studio/actions/runs/44974305512).
-- Provision only approved Free hosting/database; store secrets privately.
-- Verify the actual deployed SHA and HTTPS URL with a fresh browser.
-- Run public guest, import, cleaning, workflow, analytics/export, language,
-  invalid-input and isolation checks; confirm persistence across a restart.
-- Verify operator access privately, remove first-admin bootstrap secrets and
-  record backup/retention ownership.
-- Add the real URL to README and create v1.0.0 only after these items are met.
+- Completed: dedicated Render Free/Neon Free resources; secrets in hosting settings.
+- Completed: first deployed SHA 41b117c2761d7041295a23ec8501409726ef61c8 and
+  real HTTPS URL verified with a fresh browser.
+- Completed: public guest, import, cleaning/apply, workflow reuse, analytics/export,
+  invalid-input and owner-isolation API checks; browser language/layout/import/analytics.
+- Completed: existing operator login reaches Administration; operator owns private
+  backups, quota monitoring and retention. Local backup drill is not cloud recovery.
+- Completed: real URL and reproducible checks added to both READMEs.
+- Pending: controlled restart with the same guest session and synthetic dataset.
+- Pending: owner password rotation and removal of first-admin bootstrap secrets.
+- Pending: final source diff/credential review, exact feature-head CI, merged-main
+  CI and final deployed SHA/health verification for release preparation.
+- Create v1.0.0 only after the remaining gates pass. A version string is not a tag.
 
-Public provisioning and verification remain open. A successful local test or
-design document is not evidence that a public service is running.
+See [public verification](PUBLIC_VERIFICATION.md) for direct observations and
+their limits. Public deployment currently uses a manually selected green commit;
+automatic delivery has not been verified.

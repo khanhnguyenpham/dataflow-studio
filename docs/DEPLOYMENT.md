@@ -1,7 +1,10 @@
 # Deployment
 
-Status: source and local checks are available; **no public URL has been verified**.
-Do not replace that statement with an invented URL or release badge.
+Live application: **https://dataflow-studio.onrender.com/**. The first deployment
+of `41b117c2761d7041295a23ec8501409726ef61c8` was observed Live in Render and
+verified over HTTPS on 22 November 2026. See the
+[public verification record](PUBLIC_VERIFICATION.md) for checks and limits.
+Controlled restart and final operator handoff remain release gates.
 
 ## Free hosting target
 
@@ -9,7 +12,14 @@ Use one Docker web service on Render Free and a separate PostgreSQL 18 project
 on Neon Free. The repository's `render.yaml` defines only the web service; it does
 not create a paid resource or an expiring Render PostgreSQL instance.
 
-The accounts need to be signed in by the owner before provisioning. Check the
+The owner signed in and provisioned dedicated Free resources in Virginia: one
+Docker web service and one external PostgreSQL 18 database. `APP_ORIGINS` is the
+exact public origin above, Secure cookies and retention are enabled. Database
+credentials remain in hosting secrets. This service was created from the public
+Git URL; deployment is currently manual after exact-commit CI passes. Do not
+describe the selected **After CI Checks Pass** option as proven automatic delivery.
+
+For a fresh deployment, the accounts need to be signed in by the owner. Check the
 actual plan screen before submitting. Never enter a card or enable a paid plan
 as part of this setup.
 
@@ -57,6 +67,11 @@ See [Neon plans](https://neon.com/docs/introduction/plans).
 A free portfolio host has no application availability SLA. Monitor storage,
 transfer and compute; suspend or reduce usage if the allowance is exhausted.
 Do not enable paid overages without the owner's approval.
+
+The operator is responsible for account access, provider usage/storage monitoring
+and private backups. Application retention does not replace a database backup.
+The recorded restore drill uses dedicated local synthetic databases; cloud
+failover/recovery has not been tested. Follow the [operator guide](ADMIN.md#backup-and-restore).
 
 Application defaults bound imports, shared payload and active guests; two concurrent
 data requests and two Argon2id operations are admitted per process. The container
