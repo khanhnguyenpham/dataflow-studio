@@ -15,3 +15,15 @@ Làm theo lệnh trong [README tiếng Anh](README.md#local-setup), dùng Postgr
 Mỗi bộ dữ liệu thuộc một chủ sở hữu. Guest hết quyền truy cập sau hai giờ; dữ liệu được xóa khi tác vụ dọn guest chạy. Không dùng thông tin bí mật hoặc dữ liệu cá nhân trong guest public.
 
 Tài khoản thường do người vận hành tạo; không có mật khẩu mặc định. Hướng dẫn cài đặt, kiểm thử và giới hạn hiện tại nằm trong README gốc và [tiến độ](docs/IMPLEMENTATION_STATUS.md).
+
+## Hướng dẫn và trạng thái phát hành
+
+Có [hướng dẫn người dùng](docs/USER_GUIDE.vi.md), [hướng dẫn quản trị](docs/ADMIN.md),
+[cách xử lý lỗi](docs/TROUBLESHOOTING.md), [roadmap](docs/ROADMAP.md) và
+[phần mã cần hiểu khi phỏng vấn](docs/INTERVIEW_GUIDE.md).
+Bản hiện tại bổ sung quy tắc kiểm tra dữ liệu, giải thích khoảng IQR, biểu đồ
+Recharts và kiểm tra giao diện ở sáu kích cỡ. Xem [bằng chứng và giới hạn kiểm tra](docs/RELEASE_CHECKLIST.md).
+
+Chưa có URL public được xác minh. Cấu hình Render Free + Neon PostgreSQL đã chuẩn
+bị; còn bước chủ tài khoản đăng nhập, tạo tài nguyên Free và kiểm tra qua HTTPS.
+Không coi thiết kế triển khai là ứng dụng đã được xuất bản.

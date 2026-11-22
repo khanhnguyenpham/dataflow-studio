@@ -44,7 +44,8 @@ jobs:
           python -m alembic -c backend/alembic.ini upgrade head
       - name: Backend
         run: |
-          ruff check backend
+          ruff check backend scripts
+          mypy
           pytest -q
           pip check
       - name: Frontend
@@ -54,6 +55,12 @@ jobs:
           pnpm lint
           pnpm test
           pnpm build
+      - name: Dependency advisories
+        run: |
+          pip install pip-audit==2.10.1
+          pip-audit --requirement backend/requirements.lock --no-deps --disable-pip
+          cd frontend
+          pnpm audit
       - name: Browser workflow
         working-directory: frontend
         run: |

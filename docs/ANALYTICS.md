@@ -1,5 +1,8 @@
 # Analytics and saved reports
 
+Charts use Recharts (the only main chart library), lazy-loaded with analytics.
+Arrow keys explore points; exact results remain in the adjacent table and JSON.
+
 Select a dataset version, group column and row count, sum or average. For numeric operations choose the numeric column explicitly; inference does not silently coerce a date or ID. Confirm that you reviewed the selected version before calculating. An optional source-row filter runs before aggregation.
 
 Calculations use bounded Decimal values, with 50 significant digits of working precision. Input numeric text must already use a dot decimal separator and no thousands grouping; clean it explicitly when needed. Invalid non-empty numbers fail visibly. Empty values are excluded from numeric operations and counted; all-empty numeric groups have a null result, not a made-up zero. Row counts include every matching row. Overall averages are weighted across valid source values, not averaged across group averages. With no filtered rows, count is zero and numeric totals remain null.

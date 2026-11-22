@@ -1,0 +1,23 @@
+{
+  "recorded_at": "2026-11-22T01:49:57.841537+00:00",
+  "tools": {
+    "pip-audit": "2.10.1",
+    "pnpm": "11.25.0"
+  },
+  "python_pinned_packages": 44,
+  "python_known_advisories": 0,
+  "frontend": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0
+    },
+    "dependencies": 49,
+    "devDependencies": 242,
+    "optionalDependencies": 48,
+    "totalDependencies": 291
+  },
+  "limits": "Known dependency advisories at this time, not a penetration test or guarantee of security."
+}

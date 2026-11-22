@@ -14,6 +14,7 @@ const operations = [
   "filter",
   "split",
   "combine",
+  "validate",
 ];
 export default function StepBuilder({
   columns,
@@ -36,7 +37,9 @@ export default function StepBuilder({
     for (const [key, value] of form.entries())
       if (key !== "columns") step[key] = String(value);
     if (multi) step.columns = form.getAll("columns").map(String);
-    if (op === "date") step.formats = form.getAll("formats").map(String);
+    if (op === "date" || op === "validate")
+      step.formats = form.getAll("formats").map(String);
+    if (op === "validate") step.allow_empty = form.has("allow_empty");
     if (op === "split")
       step.names = String(step.names)
         .split(",")
@@ -97,7 +100,26 @@ export default function StepBuilder({
           <input name="old" maxLength={500} />
         </label>
       )}
-      {op === "date" && (
+      {op === "validate" && (
+        <>
+          <label>
+            {t("validationRule.label")}
+            <select name="rule">
+              {["not_null", "unique", "number", "date"].map((rule) => (
+                <option key={rule} value={rule}>
+                  {t(`validationRule.${rule}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="checkbox-label">
+            <input type="checkbox" name="allow_empty" />
+            {t("validationRule.allowEmpty")}
+          </label>
+          <small>{t("validationRule.help")}</small>
+        </>
+      )}
+      {(op === "date" || op === "validate") && (
         <label>
           {t("clean.dateFormat")}
           <select name="formats" multiple required defaultValue={["%Y-%m-%d"]}>

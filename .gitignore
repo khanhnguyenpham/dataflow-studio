@@ -1,6 +1,9 @@
 .venv/
 .runtime/
 .env
+.env.*
+!.env.example
+.mypy_cache/
 __pycache__/
 .pytest_cache/
 .ruff_cache/

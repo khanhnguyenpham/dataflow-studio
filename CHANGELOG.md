@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased — release quality
+
+- Recharts analytics, readable recipe parameters, rule validation and actionable row errors.
+- Profile distributions/IQR bounds, inventory/unmatched-key samples, guarded first-admin initialization and bounded processing/password memory.
+- Six-width accessibility checks, scoped mypy, advisory CI, real local benchmarks and backup/restore evidence; user/operator/deployment guides.
+- Public deployment and v1.0 verification remain open.
+
 ## Unreleased
 
 - Added reviewed bilingual column matching, typed map/reorder operations and changed-schema walkthrough.

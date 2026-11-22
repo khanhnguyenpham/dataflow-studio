@@ -1,5 +1,11 @@
 # Cleaning and exports
 
+**Check a rule** adds non-mutating validation to a recipe/workflow: required,
+unique, normalized number or explicit-format date. It stops with column/count
+and the first ten failing row positions (relative to this step's input, including
+the header). Empty values fail unless explicitly allowed; required always rejects
+blanks. A failed rule never creates an applied version.
+
 Import never cleans values. Version 1 retains the parsed source and uploaded bytes. A recipe uses only typed operations, with a maximum of 20 steps. Columns refer to the output of the preceding step.
 
 1. Open **Clean & export** and select a dataset.

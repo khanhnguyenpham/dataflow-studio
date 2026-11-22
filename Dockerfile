@@ -16,4 +16,4 @@ COPY --from=frontend /build/dist ./frontend/dist
 ENV PYTHONPATH=/app/backend PYTHONUNBUFFERED=1
 USER dataflow
 EXPOSE 8000
-CMD ["sh", "-c", "python -m alembic -c backend/alembic.ini upgrade head && exec python -m uvicorn app.main:create_app --factory --host 0.0.0.0 --port ${PORT:-8000} --limit-concurrency 20"]
+CMD ["sh", "-c", "python -m alembic -c backend/alembic.ini upgrade head && exec python -m uvicorn app.main:create_app --factory --host 0.0.0.0 --port ${PORT:-8000} --limit-concurrency 8"]

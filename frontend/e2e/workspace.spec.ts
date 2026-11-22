@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
+import AxeBuilder from "@axe-core/playwright";
 
 test("analytics rejects invalid numbers and exports a pinned cleaned report", async ({
   page,
@@ -99,7 +100,7 @@ test("analytics rejects invalid numbers and exports a pinned cleaned report", as
   await page
     .getByRole("button", { name: "Calculate preview", exact: true })
     .click();
-  await expect(page.locator("svg.data-chart path")).toHaveCount(3);
+  await expect(page.locator(".recharts-pie-sector")).toHaveCount(3);
   await page
     .getByRole("combobox", { name: "Chart type", exact: true })
     .selectOption("line");
@@ -109,7 +110,7 @@ test("analytics rejects invalid numbers and exports a pinned cleaned report", as
   await page
     .getByRole("button", { name: "Calculate preview", exact: true })
     .click();
-  await expect(page.locator("svg.data-chart polyline")).toHaveCount(1);
+  await expect(page.locator(".recharts-line-curve")).toHaveCount(1);
   await page
     .getByRole("combobox", { name: "Chart type", exact: true })
     .selectOption("bar");
@@ -133,6 +134,14 @@ test("analytics rejects invalid numbers and exports a pinned cleaned report", as
     page.getByRole("heading", { name: "November quantities", exact: true }),
   ).toBeVisible();
   await page.evaluate(() => window.scrollTo(0, 0));
+  await page.mouse.move(0, 0);
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
   await page.screenshot({
     path: "../docs/images/analytics-report.png",
     fullPage: true,

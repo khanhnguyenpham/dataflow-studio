@@ -1,0 +1,6 @@
+SKU,Warehouse,Quantity,Unit Cost,Count Date
+001,North,12,2.50,2026-11-01
+002,North,0,8.00,2026-11-01
+003,South,-2,3.50,2026-11-01
+004,South,9,4.20,2026-11-01
+004,South,9,4.20,2026-11-01

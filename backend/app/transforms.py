@@ -1,6 +1,7 @@
 """Typed, deterministic transformations; no user code, SQL or regular expressions."""
 
 from datetime import datetime
+from collections.abc import Sequence
 from decimal import Decimal, InvalidOperation
 import re
 from typing import Annotated, Literal
@@ -95,8 +96,18 @@ class MapColumns(Strict):
     keep_extras: bool = True
 
 
+class Validate(Strict):
+    op: Literal["validate"]
+    column: str = Field(min_length=1, max_length=255)
+    rule: Literal["not_null", "unique", "number", "date"]
+    formats: list[Literal["%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y"]] = Field(
+        default=["%Y-%m-%d"], min_length=1, max_length=3
+    )
+    allow_empty: bool = False
+
+
 Step = Annotated[
-    Trim | Rename | Fill | Replace | Dedupe | Dates | Numbers | Filter | Split | Combine | MapColumns,
+    Trim | Rename | Fill | Replace | Dedupe | Dates | Numbers | Filter | Split | Combine | MapColumns | Validate,
     Field(discriminator="op"),
 ]
 
@@ -153,12 +164,53 @@ def converted_rows(columns, records, column, convert):
     return changed
 
 
+def parse_date(value: str, formats: Sequence[str]) -> str:
+    if len(value) > 64:
+        raise ValueError("Invalid date length")
+    parsed = set()
+    for fmt in formats:
+        try:
+            parsed.add(datetime.strptime(value.strip(), fmt).date().isoformat())
+        except ValueError:
+            continue
+    if len(parsed) != 1:
+        raise ValueError("Invalid or ambiguous date")
+    return parsed.pop()
+
+
+def validate_rows(columns, records, step):
+    index = column_index(columns, step.column)
+    failures, seen = [], set()
+    for number, row in enumerate(records, start=2):
+        value, valid = row[index], True
+        empty = value is None or not value.strip()
+        if empty:
+            valid = step.allow_empty and step.rule != "not_null"
+        elif step.rule == "unique":
+            valid = value not in seen
+            seen.add(value)
+        elif step.rule in {"number", "date"}:
+            try:
+                decimal_value(value) if step.rule == "number" else parse_date(value, step.formats)
+            except (ValueError, InvalidOperation):
+                valid = False
+        if not valid:
+            failures.append(number)
+    if failures:
+        raise Problem(
+            "validation_failed",
+            details={"column": step.column, "rule": step.rule, "rows": failures[:10], "count": len(failures)},
+        )
+
+
 def apply_steps(source_columns, source_records, steps, limits):
     columns, records = list(source_columns), [list(row) for row in source_records]
     impacts = []
     for step in steps:
         before, changed = len(records), 0
-        if isinstance(step, Trim):
+        if isinstance(step, Validate):
+            validate_rows(columns, records, step)
+        elif isinstance(step, Trim):
             for name in step.columns:
                 idx = column_index(columns, name)
                 for row in records:
@@ -192,21 +244,7 @@ def apply_steps(source_columns, source_records, steps, limits):
                     kept.append(row)
             records = kept
         elif isinstance(step, Dates):
-
-            def convert_date(value):
-                if len(value) > 64:
-                    raise ValueError("Invalid date length")
-                parsed = set()
-                for fmt in step.formats:
-                    try:
-                        parsed.add(datetime.strptime(value.strip(), fmt).date().isoformat())
-                    except ValueError:
-                        continue
-                if len(parsed) != 1:
-                    raise ValueError("Invalid or ambiguous date")
-                return parsed.pop()
-
-            changed = converted_rows(columns, records, step.column, convert_date)
+            changed = converted_rows(columns, records, step.column, lambda value: parse_date(value, step.formats))
         elif isinstance(step, Numbers):
             changed = converted_rows(
                 columns, records, step.column, lambda v: format(decimal_value(v, step.decimal, step.thousands), "f")

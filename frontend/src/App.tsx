@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { lazy, Suspense, useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ArrowRight,
@@ -24,13 +24,25 @@ import {
 import { useWorkspace } from "./useWorkspace";
 import CleaningWorkspace from "./CleaningWorkspace";
 import WorkflowWorkspace from "./WorkflowWorkspace";
-import AnalyticsWorkspace from "./AnalyticsWorkspace";
 import AdminWorkspace from "./AdminWorkspace";
+const AnalyticsWorkspace = lazy(() => import("./AnalyticsWorkspace"));
+const views = new Set([
+  "datasets",
+  "quality",
+  "cleaning",
+  "workflows",
+  "analytics",
+  "account",
+  "help",
+  "administration",
+]);
+const currentView = () =>
+  views.has(location.hash.slice(1)) ? location.hash.slice(1) : "datasets";
 
 export default function App() {
   const { t, i18n } = useTranslation();
   const w = useWorkspace();
-  const [tab, setTab] = useState(location.hash.slice(1) || "datasets"),
+  const [tab, setTab] = useState(currentView),
     [login, setLogin] = useState(false),
     [importing, setImporting] = useState(false),
     [file, setFile] = useState<File | null>(null),
@@ -45,7 +57,7 @@ export default function App() {
       new Date(s),
     );
   useEffect(() => {
-    const change = () => setTab(location.hash.slice(1) || "datasets");
+    const change = () => setTab(currentView());
     window.addEventListener("hashchange", change);
     return () => window.removeEventListener("hashchange", change);
   }, []);
@@ -361,6 +373,8 @@ export default function App() {
                   <option value="sales">{t("wf.salesSample")}</option>
                   <option value="products">{t("wf.productSample")}</option>
                   <option value="next-month">{t("wf.nextSample")}</option>
+                  <option value="inventory">{t("samples.inventory")}</option>
+                  <option value="missing-key">{t("samples.missingKey")}</option>
                   <option value="variant">{t("mapping.variantSample")}</option>
                 </select>
               </div>
@@ -518,6 +532,27 @@ export default function App() {
                               <dd>{fmt(f.outlier_warnings)}</dd>
                             </div>
                           </dl>
+                          {f.outlier_bounds && (
+                            <p className="muted">
+                              {t("profileBounds", {
+                                lower: fmt(Number(f.outlier_bounds.lower)),
+                                upper: fmt(Number(f.outlier_bounds.upper)),
+                              })}
+                            </p>
+                          )}
+                          {!!f.distribution?.length && (
+                            <details>
+                              <summary>{t("distribution")}</summary>
+                              <dl>
+                                {f.distribution.map((entry) => (
+                                  <div key={entry.value}>
+                                    <dt>{entry.value}</dt>
+                                    <dd>{fmt(entry.count)}</dd>
+                                  </div>
+                                ))}
+                              </dl>
+                            </details>
+                          )}
                           {f.statistics && (
                             <details>
                               <summary>{t("statistics")}</summary>
@@ -546,12 +581,21 @@ export default function App() {
           {tab === "workflows" && (
             <WorkflowWorkspace datasets={w.datasets} changed={w.changed} />
           )}
-          {tab === "analytics" && <AnalyticsWorkspace datasets={w.datasets} />}
+          {tab === "analytics" && (
+            <Suspense fallback={loading}>
+              <AnalyticsWorkspace datasets={w.datasets} />
+            </Suspense>
+          )}
           {tab === "administration" && w.user.role === "admin" && (
             <AdminWorkspace
               ownId={w.user.id}
               sessionChanged={w.refreshIdentity}
             />
+          )}
+          {tab === "administration" && w.user.role !== "admin" && (
+            <p className="error" role="alert">
+              {t("error.forbidden")}
+            </p>
           )}
           {tab === "help" && (
             <section className="help">

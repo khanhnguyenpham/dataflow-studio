@@ -4,6 +4,7 @@ import secrets
 import time
 from collections import deque
 from datetime import timedelta
+from threading import BoundedSemaphore
 
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError
@@ -17,7 +18,29 @@ from .audit import record
 from .limits import config_row, current_limits
 
 router = APIRouter(prefix="/auth")
-hasher = PasswordHasher()
+
+
+class BoundedHasher:
+    """Keep Argon2id defaults, but admit at most two 64 MiB operations per process."""
+    def __init__(self):
+        self._hasher, self._slots = PasswordHasher(), BoundedSemaphore(2)
+
+    def _call(self, method, *args):
+        if not self._slots.acquire(blocking=False):
+            raise Problem("server_busy", 429)
+        try:
+            return method(*args)
+        finally:
+            self._slots.release()
+
+    def hash(self, password):
+        return self._call(self._hasher.hash, password)
+
+    def verify(self, stored, password):
+        return self._call(self._hasher.verify, stored, password)
+
+
+hasher = BoundedHasher()
 # A fixed dummy hash avoids disclosing whether a username exists through verification cost.
 dummy = hasher.hash(secrets.token_urlsafe(24))
 
@@ -173,9 +196,10 @@ def logout(request: Request, response: Response, user=Depends(identity), db=Depe
 
 
 @router.post("/password", status_code=204)
-def password(body: PasswordChange, response: Response, user=Depends(identity), db=Depends(session_db)):
+def password(body: PasswordChange, request: Request, response: Response, user=Depends(identity), db=Depends(session_db)):
     from .workspace import lock_owner
 
+    limited(request, "password", 5, 900)
     lock_owner(db, user)
     if user.role == "guest":
         raise Problem("forbidden", 403)
