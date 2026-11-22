@@ -1,0 +1,12 @@
+{
+  "recorded_at": "2026-11-22T07:04:21.503053+00:00",
+  "base_url": "https://dataflow-studio.onrender.com",
+  "health_version_before": "0.1.0",
+  "health_version_after": "1.0.0",
+  "guest_session_persisted": true,
+  "dataset_id_persisted": true,
+  "leading_zero_id_preserved": true,
+  "source_quantity": "12",
+  "scope": "One newly created synthetic guest dataset across the separately observed service replacement/restart.",
+  "credentials_or_resource_ids_recorded": false
+}

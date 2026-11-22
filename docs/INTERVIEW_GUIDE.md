@@ -17,7 +17,7 @@ not a list of frameworks.
 | Assistance/evaluation | backend/app/schema_match.py, evaluate_mapping.py | Aliases/similarity, abstention, small curated fixture limits, no claim of general AI accuracy |
 | Admin/resources | backend/app/admin.py, limits.py, maintenance.py | Last-admin concurrency, global→owner lock order, conservative payload budget, sleeping-host cleanup |
 | Frontend state | frontend/src/useWorkspace.ts, useCleaning.ts, useWorkflows.ts | Abort/stale guards, preview invalidation, deliberate confirmation, retrying the same run |
-| Delivery | .github/workflows/checks.yml, Dockerfile, render.yaml | Exact-SHA checks, non-root container, persistent SQL, Free-host limitations and unreleased state |
+| Delivery | .github/workflows/checks.yml, Dockerfile, render.yaml | Exact-SHA CI, non-root container, persistent SQL, verified public deployment and manual delivery after green CI |
 
 Three practical demonstrations:
 

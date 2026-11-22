@@ -25,6 +25,7 @@ no v1.0 tag is claimed at this checkpoint.
 | Schema assistance | #6 | 119f1a37a915e64cf63be682e0f0f80366f3d5b3 | Passed |
 | Release quality | #7 | 09436ae99ec267454a2cee6e5a97b90ddfe91cd9 | Feature-head and merged-main CI passed |
 | Handoff documentation | #8 | 41b117c2761d7041295a23ec8501409726ef61c8 | Feature-head and merged-main CI passed |
+| Public release preparation | #9 | 31425b50aeb1952c6c64db6572b339ac6076d221 | Feature-head and merged-main CI passed; deployed Live |
 
 Historical local release-quality checks before this preparation slice: **60 backend tests with PostgreSQL integration**, Ruff and dependency consistency passed. **3 frontend tests**, ESLint and TypeScript/Vite build passed. **8 Edge browser flows** passed on a dedicated `dataflow_e2e` database, including admin account/limit/audit operations, English/VI, desktop/mobile, two-month join reuse, preview/apply/restore, all chart types and real downloaded JSON comparison. Ephemeral browser credentials were deleted after testing and are never committed. Real screenshots are in `docs/images`.
 
@@ -45,15 +46,19 @@ source CI integration/browser suite, capacity testing or an independent security
 ## Release handoff
 
 Render Free serves React/FastAPI; a dedicated Neon Free PostgreSQL 18 project
-holds persistent data. The first live source SHA is recorded above. Private
-operator password rotation, bootstrap-secret removal and the controlled restart
-check remain open before a v1.0 tag. The release-preparation slice centralizes API
-version metadata at 1.0.0 and adds reproducible public acceptance/persistence tools;
-changing that metadata is not itself a completed release.
+holds persistent data. The live application is now version 1.0.0 at PR #9's main
+SHA above. After deployment, the same guest session could read the same synthetic
+dataset/version, including ID `001` and quantity `12`; its fixture was then removed.
+See [deployment](evaluation/public-deployment.json) and
+[persistence evidence](evaluation/public-persistence.json).
+Private operator password rotation and bootstrap-secret removal remain open
+before a v1.0 tag. Version metadata alone is not a completed release.
 
 This slice's local checks: Ruff, 12 selected configuration/release tests with real
 PostgreSQL integration, CLI parser checks and TypeScript/Vite build passed.
-Its exact-head and merged-main CI must pass before deployment/tagging.
+Its exact-head and merged-main CI passed, including the full backend/frontend,
+browser, advisory and container checks. Final documentation checks separately
+validate local Markdown targets and publish only aggregate/synthetic evidence.
 
 The SIGMA repository/database stays outside this project's mutation scope;
 local credentials, DB, environment and builds remain ignored. The local application

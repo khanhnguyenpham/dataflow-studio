@@ -6,6 +6,15 @@ The first live deployment was observed in the Render console at source commit
 [CI passed](https://github.com/khanhnguyenpham/dataflow-studio/actions/runs/44974947320).
 Health returned `status=ok`, application version `0.1.0`.
 
+The release-preparation application was subsequently deployed at commit
+`31425b50aeb1952c6c64db6572b339ac6076d221`, after its exact merged-main
+[CI passed](https://github.com/khanhnguyenpham/dataflow-studio/actions/runs/44996111648).
+Render reported **Deploy succeeded / Live** at that SHA; fresh HTTPS health
+returned `status=ok`, version `1.0.0`, and the React entry returned HTTP 200.
+See [post-deploy evidence](evaluation/public-deployment.json). This slice changes
+version metadata and verification tools/docs, retaining the processing behavior
+tested in the first public acceptance run. It is not yet a published release tag.
+
 ## Functional acceptance over HTTPS
 
 [Machine-readable result](evaluation/public-api.json) records 42 unique named
@@ -41,6 +50,8 @@ does not infer deployed provenance from an HTTP response or from a Git checkout.
 
 ## Browser observations
 
+[Recorded browser observations and measurements](evaluation/public-browser.json).
+
 The real public application was opened in Edge. A derived synthetic November CSV
 with three rows was imported; grouped sum by Product Code displayed **12** across
 three groups, then a version-1 report was saved. This CSV was prepared by a
@@ -62,8 +73,22 @@ integration and browser tests.
 
 ## Persistence and operational handoff
 
-Controlled service-restart verification and removal of first-admin bootstrap
-secrets are pending. No v1.0 tag has been created at this checkpoint.
+The [controlled persistence probe](evaluation/public-persistence.json) held a new
+guest session and one synthetic dataset in memory while the service was replaced.
+After health changed from 0.1.0 to 1.0.0, the same session could read the same dataset
+and version: one row, ID `001`, quantity `12`. The probe then removed only its
+own fixture and closed the session. This verifies one actual PostgreSQL/session
+persistence case across deployment; it is not a cloud restore or a load test.
+
+To reproduce, run `scripts/verify_persistence.py` with the public `--base-url` and
+a private `--output` path. Keep the process running, separately observe the
+authorized restart/redeployment becoming Live, then type `verify` in that process.
+Do not confirm success without an actual service replacement. Cookies remain
+in memory and are never included in its output.
+
+Existing private operator access was verified. Owner password rotation and
+approval to remove the two first-admin bootstrap variables remain pending.
+No v1.0 tag has been created at this checkpoint.
 
 Render and Neon are dedicated Free resources in Virginia, with no paid instance
 or card used. The public Git URL deployment uses manually selected, green source

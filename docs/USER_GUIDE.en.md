@@ -53,8 +53,9 @@ quality findings and processing history.
 
 ## Reuse a monthly report
 
-1. Load **October sales**, **Product lookup** and **November sales** from the sample
-   menu. These fit the guest's three slots.
+1. Start with the **October sales** dataset already loaded in a fresh guest.
+   Load **Product lookup** and **November sales** from the sample menu, once each.
+   Together these use the guest's three slots; do not load October a second time.
 2. Select October; add **Remove duplicates** using **Order ID**. Expand
    **Save a reusable workflow**, name it and choose a left join to Product lookup
    using **Product Code** on both sides.
