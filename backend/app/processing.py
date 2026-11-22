@@ -113,6 +113,8 @@ def bounded_rows(rows, columns, settings):
 
 
 def number(value):
+    if value is None or len(value) > 128:
+        return None
     try:
         n = Decimal(value.strip())
         return n if n.is_finite() and abs(n.adjusted()) <= 18 and len(n.as_tuple().digits) <= 30 else None
@@ -121,6 +123,8 @@ def number(value):
 
 
 def valid_date(value):
+    if value is None or len(value) > 64:
+        return None
     for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%Y-%m-%dT%H:%M:%S"):
         try:
             return datetime.strptime(value.strip(), fmt).date()

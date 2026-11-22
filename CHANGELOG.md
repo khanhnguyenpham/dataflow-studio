@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added administrator account access/reset controls, last-admin protection, operational run status, revisioned quotas and metadata-only audit.
+- Added periodic retention, cached global/user payload accounting and production configuration guards.
+- Isolated browser checks in dataflow_e2e with ephemeral credentials, redacted output and cleanup.
+
 - Added Decimal aggregation, filters, bounded bar/line/pie charts and saved reports pinned to dataset versions.
 - Added CSV/JSON report exports and optional aggregation in reusable workflows, with invalid-number and missing-value handling.
 

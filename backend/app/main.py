@@ -1,5 +1,7 @@
 from collections import defaultdict
+import asyncio
 from contextlib import asynccontextmanager
+from contextlib import suppress
 import logging
 from pathlib import Path
 
@@ -11,7 +13,8 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.middleware.cors import CORSMiddleware
 
-from . import auth, datasets, reports, versions, workflows
+from . import admin, auth, datasets, reports, versions, workflows
+from .maintenance import retention_loop
 from .config import Settings
 from .db import database
 from .errors import Problem
@@ -56,8 +59,15 @@ def create_app(settings: Settings | None = None):
 
     @asynccontextmanager
     async def lifespan(app):
-        yield
-        engine.dispose()
+        task = asyncio.create_task(retention_loop(sessions)) if settings.retention_enabled else None
+        try:
+            yield
+        finally:
+            if task:
+                task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await task
+            engine.dispose()
 
     app = FastAPI(title="DataFlow Studio", version="0.1.0", lifespan=lifespan)
     app.state.settings, app.state.engine, app.state.sessions = settings, engine, sessions
@@ -117,6 +127,17 @@ def create_app(settings: Settings | None = None):
     app.include_router(versions.router, prefix="/api")
     app.include_router(workflows.router, prefix="/api")
     app.include_router(reports.router, prefix="/api")
+    app.include_router(admin.router, prefix="/api")
+
+    @app.get("/api/config")
+    def public_config():
+        return {
+            "upload_max_bytes": settings.max_bytes,
+            "max_rows": settings.max_rows,
+            "max_columns": settings.max_columns,
+            "guest_hours": 2,
+        }
+
     static = Path(__file__).resolve().parents[2] / "frontend" / "dist"
     if static.is_dir():
         app.mount("/", StaticFiles(directory=static, html=True), name="frontend")

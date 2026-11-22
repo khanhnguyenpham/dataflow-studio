@@ -4,6 +4,8 @@ from pydantic import Field
 from sqlalchemy import func, select
 from .aggregation import AggregateSpec, aggregate
 from .auth import identity, limited, session_db
+from .audit import record
+from .limits import cap, current_limits
 from .errors import Problem
 from .exports import csv_bytes
 from .report_models import Report
@@ -72,7 +74,7 @@ def save(body: ReportRequest, request: Request, user=Depends(identity), db=Depen
     if not body.name.strip():
         raise Problem("invalid_request")
     count = db.scalar(select(func.count()).select_from(Report).where(Report.owner_id == user.id))
-    if count >= (10 if user.role == "guest" else 30):
+    if count >= cap(current_limits(db), user, "reports"):
         raise Problem("report_limit", 413)
     specification = body.specification.model_dump()
     check_storage(db, user, payload_budget(specification))
@@ -81,9 +83,12 @@ def save(body: ReportRequest, request: Request, user=Depends(identity), db=Depen
         dataset_id=source.id,
         dataset_version=source.current_version,
         name=body.name.strip(),
+        storage_bytes=payload_budget(specification),
         specification=specification,
     )
     db.add(row)
+    db.flush()
+    record(db, user, "report.saved", row.id, {"dataset_version": row.dataset_version})
     db.commit()
     return {**report_view(row), "result": result}
 
@@ -114,6 +119,7 @@ def detail(key: str, request: Request, user=Depends(identity), db=Depends(sessio
 def remove(key: str, user=Depends(identity), db=Depends(session_db)):
     lock_owner(db, user)
     db.delete(owned_report(db, user, key))
+    record(db, user, "report.deleted", key)
     db.commit()
 
 

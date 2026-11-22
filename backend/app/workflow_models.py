@@ -23,6 +23,7 @@ class WorkflowVersion(Base):
     workflow_id: Mapped[str] = mapped_column(ForeignKey("workflows.id", ondelete="CASCADE"), index=True)
     number: Mapped[int] = mapped_column(Integer)
     definition: Mapped[dict] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
+    storage_bytes: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 

@@ -10,7 +10,7 @@ Import, profiling, versioned cleaning/export, reusable workflows and saved analy
 
 Available in this working slice: isolated, two-hour guest sessions; sign-in and password changes; bounded CSV/XLSX imports; explicit selection of Excel sheets; dataset preview; missing values, duplicate rows, suggested types and review warnings; English/Vietnamese UI. Source bytes and values are retained without automatic correction. Accounts are created by an operator.
 
-Clean & export adds typed recipes, before/after previews, explicit apply, retained version history/restore and CSV/XLSX/JSON/quality downloads. [Workflows](docs/WORKFLOWS.md) save recipes and column contracts, append/join tables with key checks, aggregate, and run against new files with persisted history and idempotent retries. [Analytics](docs/ANALYTICS.md) provides real Decimal totals/counts/averages, filtered charts and saved reports pinned to dataset versions. See the [cleaning guide](docs/CLEANING.md). Admin screens and public hosting remain next milestones. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and the [plan](docs/PLAN.md).
+Clean & export adds typed recipes, before/after previews, explicit apply, retained version history/restore and CSV/XLSX/JSON/quality downloads. [Workflows](docs/WORKFLOWS.md) save recipes and column contracts, append/join tables with key checks, aggregate, and run against new files with persisted history and idempotent retries. [Analytics](docs/ANALYTICS.md) provides real Decimal totals/counts/averages, filtered charts and saved reports pinned to dataset versions. See the [cleaning guide](docs/CLEANING.md). [Administration](docs/ADMIN.md) manages accounts, operational run status, quotas, retention and audit without bypassing dataset ownership. Public hosting remains a later milestone. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and the [plan](docs/PLAN.md).
 
 ![DataFlow workspace with the synthetic sales sample](docs/images/workspace-desktop.png)
 
@@ -31,7 +31,7 @@ $env:PYTHONPATH = 'backend'
 
 In another terminal, run `pnpm install --frozen-lockfile` and `pnpm dev` in `frontend/`. After `pnpm build`, the API also serves `frontend/dist` at its own address. Production HTTPS needs `COOKIE_SECURE=true` and an explicit allowlisted `APP_ORIGINS`.
 
-Create a permanent account with `python -m app.cli create-user` (add `--admin` only for an operator). The command prompts for a password; there is no shared/default password. Run `python -m app.cli prune-guests` periodically to delete expired guest users and cascade-delete their data. A guest-creation request also prunes expired workspaces. Physical deletion is therefore conditional on a cleanup trigger, not instantaneous at expiry.
+Create a permanent account with `python -m app.cli create-user` (add `--admin` only for an operator). The command prompts for a password; there is no shared/default password. Run `python -m app.cli prune-guests` periodically to delete expired guest users and cascade-delete their data. Cleanup also runs at startup, every sixty seconds while the app is awake, and on guest creation. An offline/sleeping host cleans up when it resumes; access expiry is still enforced.
 
 ## Checks
 
@@ -42,6 +42,8 @@ cd frontend
 pnpm test
 pnpm build
 ```
+
+Browser checks use an independently migrated database named **dataflow_e2e**, ephemeral accounts and a redacting test runner; see the [operator guide](docs/ADMIN.md#browser-checks). Never reuse an application database for these checks.
 
 For real PostgreSQL integration tests set `TEST_DATABASE_URL` to a dedicated database named **dataflow_test**. Tests create/drop their own tables; the guard rejects other PostgreSQL database names. Never point tests at an application database.
 

@@ -1,19 +1,30 @@
 # Implementation status
 
-Checkpoint: 21 November 2026. Product incomplete.
+Checkpoint: 22 November 2026. Product remains pre-release; no verified public URL.
 
-Discovery and foundation/import-profiling are implemented and merged through PR #1. The exact merged main commit `29734b9615937e137c1faa46124de8f236e32206` passed GitHub Actions, including container build/startup. PostgreSQL 18 runs in an isolated local cluster. The timezone-expiry bug found by PostgreSQL tests was corrected using timezone conversion rather than replacing timezone metadata.
+## Implemented
 
-The cleaning/export slice adds immutable versions, typed recipes, expiring preview/explicit apply, restore, safe downloads and total storage budgets. Local migration matches SQLAlchemy metadata (`alembic check`). Current checks: 25 PostgreSQL tests, Ruff, TypeScript/Vite, ESLint and 2 frontend tests passed. Desktop/mobile Edge walkthroughs passed; an additional browser flow previewed a six-to-five-row deduplication, saved version 2, downloaded Excel and restored version 1. Real screenshots are in docs/images. Excel representation-limit coverage passed. Remote CI for this slice is pending. Starlette emits a deprecation warning for the test client's httpx compatibility path; it does not fail tests.
+- English/Vietnamese React workspace, session/CSRF authentication, isolated expiring guests and password changes.
+- Bounded CSV/XLSX imports, multiple-sheet selection, profile and source preservation.
+- Typed cleaning, before/after preview, explicit apply, retained versions/restore and safe CSV/XLSX/JSON/quality exports.
+- Versioned reusable workflows, schema drift, append/left/inner joins, optional aggregation, persisted execution history and idempotent retries.
+- Decimal analytics, source filters, suitable bar/line/pie charts and version-pinned saved reports with exports.
+- Administration locally: account access/password resets, last-active-admin guard, operational run view, revisioned limits, cached quota accounting, automatic retention and metadata-only audit.
 
-The cleaning slice was merged through PR #2 after both exact-head workflows passed (`d0f5b3ad0155de47580639048aaf7e39c4dc7580`); the merged main SHA is `7fb817fba5caba4f0b206ce4c2f22ac725bea6eb`.
+## Evidence
 
-Workflow/integration now works locally: versioned typed definitions, ordered input contracts, key checks, append/left/inner joins, captured input versions, persisted states/history and idempotent retries. Preview/apply is shared with cleaning. The UI supports draft step ordering/enabling and saving a new version. Check results: 31 PostgreSQL tests (including concurrent execute/apply), Ruff, 3 frontend tests, ESLint and build passed. Four Edge browser flows passed, including loading three real synthetic CSVs, saving a lookup join, applying October, reusing November, Vietnamese and mobile overflow. Migration metadata comparison passed before the final error-message-only changes. Remote CI for the workflow slice is pending.
+| Slice | PR | Merged main SHA | Exact feature-head and merged-main CI |
+| --- | --- | --- | --- |
+| Foundation/import | #1 | 29734b9615937e137c1faa46124de8f236e32206 | Passed |
+| Cleaning/export | #2 | 7fb817fba5caba4f0b206ce4c2f22ac725bea6eb | Passed |
+| Workflows/integration | #3 | 7b5fc7027a19fa9a4c7a6458e5b1efb8079cede7 | Passed |
+| Analytics | #4 | 6c713bbeaae80ded441e52b068164b1e1926c62f | Passed |
+| Administration | Pending | Pending | Local checks passed; remote CI pending |
 
-Workflow PR #3 passed both exact-head workflows at `e8567cd16cb0f0bb1224251b572e2fe9c6d0321d`, merged as `7b5fc7027a19fa9a4c7a6458e5b1efb8079cede7`, and that merged main commit also passed CI.
+Current local checks: **48 PostgreSQL tests**, Ruff and dependency consistency passed. **3 frontend tests**, ESLint and TypeScript/Vite build passed. **6 Edge browser flows** passed on a dedicated `dataflow_e2e` database, including admin account/limit/audit operations, English/VI, desktop/mobile, two-month join reuse, preview/apply/restore, all chart types and real downloaded JSON comparison. Ephemeral browser credentials were deleted after testing and are never committed. Real screenshots are in `docs/images`.
 
-Analytics is implemented locally: exact Decimal count/sum/average, source filters, constrained bar/line/pie charts, version-pinned saved reports and CSV/JSON exports. Calculations can also be saved into workflow definitions. 37 PostgreSQL tests passed, including historical report stability, malformed numeric rejection and preview-only workflow aggregates. Three frontend tests, ESLint and build passed during this slice; the browser exercised invalid numeric handling, cleaned November, all three charts, saved a pinned report, read its downloaded JSON (total 12), then ran the saved calculation as a workflow. Schema metadata comparison passed after migration 0004. After the generated-header validation refactor, eight relevant aggregation/workflow tests passed. Remote CI for analytics is pending.
+Migration 0005 matched model metadata and backfilled existing payload budgets. The local application has no unaccounted zero-size source/version/preview/definition/report rows. The isolated local application was restarted to this slice; SQL source bytes were not changed by quota backfill. Container startup passed for earlier merged slices; it must pass again for this slice in remote CI. The remaining Starlette/httpx test-client deprecation warning is non-failing and unsuppressed.
 
-Not implemented: admin screens, intelligent matching and public deployment. No verified live URL exists. No background continuation is implied by this file.
+## Remaining
 
-Resume from `docs/PLAN.md`; rerun only checks affected by further changes. Never use the SIGMA database or modify its repository. Local ephemeral files, database and virtual environment belong under `.runtime/` and `.venv/`, which are ignored.
+Evaluated rule-based schema suggestions; release documentation/benchmarks/accessibility review; verified public backend deployment and operational handoff. Do not call this v1.0 or claim hosting before those checks are complete. Resume from `docs/PLAN.md`. The SIGMA repository/database stays outside this project's mutation scope; local credentials, DB, environment and builds remain ignored.

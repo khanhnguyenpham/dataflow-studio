@@ -13,4 +13,5 @@ class Report(Base):
     dataset_version: Mapped[int] = mapped_column(Integer)
     name: Mapped[str] = mapped_column(String(100))
     specification: Mapped[dict] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
+    storage_bytes: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)

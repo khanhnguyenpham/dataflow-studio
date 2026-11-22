@@ -65,6 +65,7 @@ class Dataset(Base):
     records: Mapped[list] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
     row_count: Mapped[int] = mapped_column(Integer)
     current_version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    storage_bytes: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 
@@ -79,6 +80,7 @@ class DatasetVersion(Base):
     records: Mapped[list] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
     row_count: Mapped[int] = mapped_column(Integer)
     steps: Mapped[list] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
+    storage_bytes: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 
@@ -88,6 +90,7 @@ class Preview(Base):
     dataset_id: Mapped[str] = mapped_column(ForeignKey("datasets.id", ondelete="CASCADE"), index=True)
     owner_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     input_version: Mapped[int] = mapped_column(Integer)
+    storage_bytes: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     result: Mapped[dict] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
     steps: Mapped[list] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)

@@ -18,7 +18,7 @@
   "import": "Import data",
   "sample": "Load sample",
   "chooseFile": "Choose a CSV or Excel file",
-  "fileHelp": "CSV or XLSX · Up to 5 MB, 10,000 rows and 100 columns. Original values are preserved.",
+  "fileHelp": "CSV or XLSX · Up to {{mb}} MiB, {{rows}} rows and {{columns}} columns. Original values are preserved.",
   "encoding": "CSV encoding",
   "sheet": "Worksheet",
   "importNow": "Import file",
@@ -68,7 +68,7 @@
   "help1": "Choose the sales sample or import your CSV/XLSX. For a workbook with several sheets, select one worksheet.",
   "help2": "Open Data quality to inspect missing values, duplicates and values that need review. IDs keep their original leading zeros.",
   "help3": "Open Clean & export to preview and confirm a recipe. Save it as a workflow to run with new files. Review the result before applying and exporting.",
-  "help4": "Your guest data is isolated from other visitors. It expires after 2 hours and is removed when guest cleanup runs. Do not upload personal or confidential information to a public guest workspace.",
+  "help4": "Guest data is isolated and access expires after 2 hours. While the server runs, cleanup checks each minute and also runs at startup. Do not upload personal or confidential information to a public guest workspace.",
   "schema": "Structure",
   "inspect": "Inspect",
   "sampleLabel": "Synthetic monthly sales",
@@ -131,7 +131,14 @@
     "line_axis": "Line charts require non-empty ISO dates or normalized numeric group values. Use a bar chart for categories.",
     "pie_values": "Pie charts require count/sum, at most 8 groups, non-negative numeric values and a positive total.",
     "report_not_found": "This report is unavailable or belongs to another workspace.",
-    "report_limit": "The saved-report limit was reached. Delete an unused report."
+    "report_limit": "The saved-report limit was reached. Delete an unused report.",
+    "last_admin": "At least one active administrator must remain.",
+    "invalid_username": "Use 3–100 letters, digits, dot, dash or underscore.",
+    "username_exists": "This username is already in use.",
+    "account_limit": "The permanent-account limit was reached.",
+    "account_not_found": "This account is unavailable.",
+    "guest_capacity": "All guest workspaces are currently in use. Try later or sign in with a permanent account.",
+    "service_storage_limit": "The service payload budget was reached. Ask an administrator to review retention and limits."
   },
   "cleaning": "Clean & export",
   "clean": {
@@ -303,5 +310,116 @@
     "emptyResult": "No numeric chart values match these settings.",
     "chartLimit": "Only the first 20 non-empty groups are charted. The table and export include every group."
   },
-  "analyticsNav": "Analytics"
+  "analyticsNav": "Analytics",
+  "administration": "Administration",
+  "adminPanel": {
+    "scope": "Account access, operational metadata and service limits. Administrator access does not bypass dataset ownership.",
+    "users": "Accounts",
+    "limits": "Usage limits",
+    "audit": "Activity log",
+    "refresh": "Refresh",
+    "status": "Service status",
+    "active_guests": "Active guests",
+    "datasets": "Datasets",
+    "failed_runs": "Failed runs",
+    "create": "Create account",
+    "role": "Role",
+    "state": "Status",
+    "actions": "Actions",
+    "active": "Active",
+    "disabled": "Disabled",
+    "roleFor": "Role for {{name}}",
+    "activeFor": "Active account {{name}}",
+    "apply": "Save changes",
+    "changeConfirm": "Save these account changes? Changed access revokes all of this account's sessions.",
+    "resetPassword": "Reset password",
+    "resetConfirm": "Reset this password and revoke all sessions?",
+    "passwordNote": "Share initial credentials privately. Ask the account owner to change their password. Passwords are never shown in account lists or logs.",
+    "accountCount": "{{count}} accounts",
+    "limitNote": "Limits apply to future writes; reducing them does not delete existing data. Payload accounting is conservative and is not an exact database-disk measurement.",
+    "storage": "Accounted payload: {{used}} MiB / {{limit}} MiB",
+    "limitConfirm": "Update these service limits? Existing data will remain.",
+    "saveLimits": "Save limits",
+    "retention": "While the app is running, cleanup checks expired guests, previews and sessions each minute. Audit history retains up to 30 days and approximately 5,000 events.",
+    "cleanup": "Run cleanup now",
+    "auditNote": "Events contain action metadata only. Passwords, session tokens and uploaded cell values are excluded.",
+    "noAudit": "No events recorded.",
+    "time": "Time",
+    "action": "Action",
+    "details": "Details",
+    "actor": "Actor ID",
+    "target": "Target ID",
+    "system": "System / removed account",
+    "saved": "Changes saved.",
+    "runs": "Workflow executions",
+    "filterState": "Run status",
+    "allStates": "All statuses",
+    "noRuns": "No executions match this filter.",
+    "runError": "Error"
+  },
+  "quota": {
+    "guest_datasets": "Guest datasets",
+    "user_datasets": "User datasets",
+    "guest_source_mb": "Guest source files (MiB)",
+    "user_source_mb": "User source files (MiB)",
+    "guest_storage_mb": "Guest payload budget (MiB)",
+    "user_storage_mb": "User payload budget (MiB)",
+    "guest_versions": "Derived versions per guest dataset",
+    "user_versions": "Derived versions per user dataset",
+    "guest_workflows": "Guest workflows",
+    "user_workflows": "User workflows",
+    "guest_runs": "Guest run history entries",
+    "user_runs": "User run history entries",
+    "guest_reports": "Guest saved reports",
+    "user_reports": "User saved reports",
+    "active_guest_limit": "Concurrent guest workspaces",
+    "global_storage_mb": "Global payload budget (MiB)"
+  },
+  "auditAction": {
+    "session": {
+      "started": "Session started",
+      "ended": "Signed out"
+    },
+    "account": {
+      "created": "Account created",
+      "updated": "Account access changed",
+      "password_reset": "Password reset",
+      "password_changed": "Password changed",
+      "created_by_operator": "Account created by operator"
+    },
+    "dataset": {
+      "imported": "Dataset imported",
+      "deleted": "Dataset deleted",
+      "version_applied": "Dataset version applied",
+      "restored": "Dataset version restored"
+    },
+    "workflow": {
+      "saved": "Workflow definition saved",
+      "deleted": "Workflow deleted"
+    },
+    "report": {
+      "saved": "Report saved",
+      "deleted": "Report deleted"
+    },
+    "limits": {
+      "updated": "Service limits changed"
+    },
+    "retention": {
+      "pruned": "Expired data removed"
+    }
+  },
+  "auditField": {
+    "role": "Role",
+    "active": "Active",
+    "rows": "Rows",
+    "source_bytes": "Source bytes",
+    "version": "Version",
+    "parent": "Parent version",
+    "dataset_version": "Dataset version",
+    "fields": "Changed limits",
+    "revision": "Configuration revision",
+    "guests": "Guests",
+    "previews": "Previews",
+    "sessions": "Sessions"
+  }
 }

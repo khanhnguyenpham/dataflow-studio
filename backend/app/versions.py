@@ -9,6 +9,8 @@ from pydantic import Field
 from sqlalchemy import func, select
 
 from .auth import identity, limited, session_db
+from .audit import record
+from .limits import cap, current_limits
 from .db import DatasetVersion, Preview, as_utc, now
 from .errors import Problem
 from .exports import csv_bytes
@@ -78,7 +80,7 @@ def apply(key: str, preview_id: str, user=Depends(identity), db=Depends(session_
     if not saved.result["changed"]:
         raise Problem("no_changes", 409)
     count = db.scalar(select(func.count()).select_from(DatasetVersion).where(DatasetVersion.dataset_id == row.id))
-    if count >= (5 if user.role == "guest" else 20):
+    if count >= cap(current_limits(db), user, "versions"):
         raise Problem("version_limit", 413)
     highest = db.scalar(select(func.max(DatasetVersion.number)).where(DatasetVersion.dataset_id == row.id)) or 1
     version = DatasetVersion(
@@ -90,9 +92,11 @@ def apply(key: str, preview_id: str, user=Depends(identity), db=Depends(session_
         row_count=len(saved.result["records"]),
         steps=saved.steps,
     )
-    check_storage(db, user, payload_budget([version.columns, version.records, version.steps]))
+    version.storage_bytes = payload_budget([version.columns, version.records, version.steps])
+    check_storage(db, user, version.storage_bytes)
     db.add(version)
     row.current_version, saved.applied_version = version.number, version.number
+    record(db, user, "dataset.version_applied", row.id, {"version": version.number, "parent": version.parent_number})
     db.commit()
     return {**summary(db, row), "applied_version": version.number}
 
@@ -135,6 +139,7 @@ def restore(key: str, body: RestoreRequest, user=Depends(identity), db=Depends(s
         raise Problem("stale_version", 409)
     materialize(db, row, body.version)
     row.current_version = body.version
+    record(db, user, "dataset.restored", row.id, {"version": body.version})
     db.commit()
     return summary(db, row)
 

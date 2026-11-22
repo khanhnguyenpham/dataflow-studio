@@ -103,6 +103,8 @@ def new_headers(columns):
 
 
 def decimal_value(text, decimal=".", thousands=""):
+    if len(text) > 128:
+        raise ValueError("Numeric text exceeds supported precision")
     value = text.strip()
     if thousands and thousands in value:
         integer, _, fraction = value.partition(decimal)
@@ -180,6 +182,8 @@ def apply_steps(source_columns, source_records, steps, limits):
         elif isinstance(step, Dates):
 
             def convert_date(value):
+                if len(value) > 64:
+                    raise ValueError("Invalid date length")
                 parsed = set()
                 for fmt in step.formats:
                     try:
