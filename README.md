@@ -68,7 +68,7 @@ Mypy currently checks four core configuration/processing modules, not every
 endpoint. CI also runs PostgreSQL API checks, browser flows, known-advisory audits
 and a real Docker startup. Read the recorded evidence for each check's limits.
 
-Passwords use Argon2id. Sessions use HttpOnly cookies, CSRF checks and expiry. Data ownership is checked at the backend for list, preview, profiling and deletion. Rate limiting is currently per-process and intended for a single bounded instance; shared quotas and independent security review are needed before a public multi-instance service.
+Passwords use Argon2id. Sessions use HttpOnly cookies, CSRF checks and expiry. Data ownership is checked at the backend for list, preview, profiling and deletion. Rate limiting is currently per-process and intended for a single bounded instance; distributed request admission and independent security review are needed before a public multi-instance service.
 
 There are no patient records, paid AI APIs or invented business metrics. The [sample](sample_data/README.md) is synthetic with documented expected defects.
 

@@ -21,7 +21,7 @@ Checkpoint: 22 November 2026. Product remains pre-release; no verified public UR
 | Analytics | #4 | 6c713bbeaae80ded441e52b068164b1e1926c62f | Passed |
 | Administration | #5 | 429f1e6fd04866d749d437c9a81ab33ad2a63bd0 | Passed after the migration-path fix |
 | Schema assistance | #6 | 119f1a37a915e64cf63be682e0f0f80366f3d5b3 | Passed |
-| Release quality | Pending | Pending | Final local checks / remote CI pending |
+| Release quality | #7 | 09436ae99ec267454a2cee6e5a97b90ddfe91cd9 | Feature-head and merged-main CI passed |
 
 Current local checks: **60 backend tests with PostgreSQL integration**, Ruff and dependency consistency passed. **3 frontend tests**, ESLint and TypeScript/Vite build passed. **8 Edge browser flows** passed on a dedicated `dataflow_e2e` database, including admin account/limit/audit operations, English/VI, desktop/mobile, two-month join reuse, preview/apply/restore, all chart types and real downloaded JSON comparison. Ephemeral browser credentials were deleted after testing and are never committed. Real screenshots are in `docs/images`.
 
@@ -31,4 +31,16 @@ Migrations 0005/0006 matched model metadata and backfilled existing payload budg
 
 Reviewed column mapping now works for source and lookup inputs. A changed-November browser flow rejects schema drift, previews ordered/renamed columns, explicitly approves removal of an extra column, applies a derived version and reruns the saved workflow. The curated 16-field test split emitted ten correct suggestions and six matching abstentions; this is regression evidence, not broad ML accuracy. The exact-name baseline emitted five suggestions. See `docs/SCHEMA_ASSISTANCE.md`.
 
-Release-quality source is on feat/release-quality, not yet merged: Recharts, non-mutating workflow rules, actionable errors, profile distributions/bounds, fixtures, resource admission, first-admin bootstrap (migration 0006), guides, scoped mypy, advisory scans, engine benchmark and eleven-table local backup/restore verification. Final checks and exact-head CI remain required. Public backend provisioning/verification and operational handoff remain open. Do not call this v1.0 or claim hosting before those checks are complete. Resume from `docs/PLAN.md`. The SIGMA repository/database stays outside this project's mutation scope; local credentials, DB, environment and builds remain ignored.
+Release-quality source merged through PR #7 into main: Recharts, non-mutating workflow rules, actionable errors, profile distributions/bounds, fixtures, resource admission, first-admin bootstrap (migration 0006), guides, scoped mypy, advisory scans, engine benchmark and eleven-table local backup/restore verification. Local checks and exact feature-head CI passed. Merged-main CI passed: https://github.com/khanhnguyenpham/dataflow-studio/actions/runs/44974305512. Public backend provisioning/verification and operational handoff remain open. Do not call this v1.0 or claim hosting before those checks are complete. Resume from `docs/PLAN.md`. The SIGMA repository/database stays outside this project's mutation scope; local credentials, DB, environment and builds remain ignored.
+
+## Resume deployment
+
+The source and deployment configuration are on main. Render and Neon both still
+show their login pages in the in-app browser; owner sign-in is the concrete blocker.
+No resources, paid plan, public URL or release tag have been created.
+After sign-in, follow DEPLOYMENT.md, provision dedicated Free resources, keep DB/admin
+credentials in hosting secrets, and verify the deployed main SHA through the real
+HTTPS workflow before recording a live URL or tagging v1.0.0. The local application
+at http://127.0.0.1:9001 has been restarted and health/React serving were checked.
+Use .runtime/connection.json for the current local PID; Windows venv launches a child
+Python process, so inspect parent and app/port arguments before any future restart.

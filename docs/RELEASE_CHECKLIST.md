@@ -28,8 +28,8 @@ runs separately from timings. Reproduce with
 ## Before a v1.0 tag
 
 - Review final source diff, ignored runtime and credential scan.
-- Push a real feature branch and obtain green CI for its exact HEAD.
-- Merge through a PR and verify the resulting main SHA/CI.
+- Completed in PR #7: exact feature-head CI passed.
+- Completed: merged main 09436ae99ec267454a2cee6e5a97b90ddfe91cd9 passed [CI](https://github.com/khanhnguyenpham/dataflow-studio/actions/runs/44974305512).
 - Provision only approved Free hosting/database; store secrets privately.
 - Verify the actual deployed SHA and HTTPS URL with a fresh browser.
 - Run public guest, import, cleaning, workflow, analytics/export, language,
