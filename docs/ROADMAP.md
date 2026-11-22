@@ -8,7 +8,7 @@ This separates shipped code from work that still needs verification.
 | NOW: reusable workflows and analytics | Implemented | Avoid rebuilding monthly reports | Validated input contracts | New-month rerun, drift/key failures and exact exported totals verified |
 | NOW: accounts, guests and admin | Implemented | Isolate data and bound public use | PostgreSQL, secret operator setup | Role/owner checks, expiry, last-admin and quota concurrency tests pass |
 | NOW: reviewed header matching | Implemented | Align renamed bilingual fields | Explicit confirmation | Curated baseline evaluation recorded; ambiguity abstains |
-| NOW: release quality and public hosting | In Progress | Give reviewers a runnable system | Owner sign-in, Free service/database | Exact-SHA CI, real HTTPS workflows, persistence and private admin handoff verified before v1.0 |
+| NOW: release quality and public hosting | Final verification | Give reviewers a runnable system | Free Render/Neon live; public API/browser checks recorded | Controlled restart, private operator handoff and final release CI/deployment before v1.0 |
 | NEXT: wider matching evaluation | Planned | Avoid narrow dictionary assumptions | Independently labelled unfamiliar schemas | Report wrong matches and abstentions on a new held-out set before adding embeddings |
 | NEXT: domain validation / anomaly rules | Planned | Separate unusual values from business errors | Labelled domain cases | Explain thresholds and evaluate false positives; no automatic corrections |
 | NEXT: scheduling and shared execution | Planned | Run unattended reports reliably | Measured request-runner limits, durable queue | Recovery, retry, ownership and duplicate-delivery tests before enabling schedules |

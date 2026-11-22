@@ -4,7 +4,7 @@
 
 ## Bắt đầu
 
-Chọn **Dùng thử không gian riêng** để mở phiên khách tách biệt, hết hạn sau hai giờ.
+Chọn **Mở không gian dùng thử riêng** để mở phiên khách tách biệt, hết hạn sau hai giờ.
 Bảng bán hàng tháng 10 tự được nạp. Đây là dữ liệu tự tạo, có lỗi để thử chức năng.
 Phiên khách giữ tối đa ba bảng; tải kết quả cần giữ trước khi hết hạn. Quản trị viên
 tạo tài khoản thường khi cần lưu công việc lâu hơn.

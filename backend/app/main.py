@@ -13,7 +13,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.middleware.cors import CORSMiddleware
 
-from . import admin, auth, datasets, reports, schema_api, versions, workflows
+from . import __version__, admin, auth, datasets, reports, schema_api, versions, workflows
 from .maintenance import retention_loop
 from .config import Settings
 from .db import database
@@ -71,7 +71,7 @@ def create_app(settings: Settings | None = None):
                     await task
             engine.dispose()
 
-    app = FastAPI(title="DataFlow Studio", version="0.1.0", lifespan=lifespan)
+    app = FastAPI(title="DataFlow Studio", version=__version__, lifespan=lifespan)
     app.state.settings, app.state.engine, app.state.sessions = settings, engine, sessions
     app.state.rate_buckets = defaultdict(list)
     app.state.data_requests = 0
@@ -138,7 +138,7 @@ def create_app(settings: Settings | None = None):
     def health():
         with sessions() as db:
             db.execute(text("SELECT 1"))
-        return {"status": "ok", "version": "0.1.0"}
+        return {"status": "ok", "version": __version__}
 
     app.include_router(auth.router, prefix="/api")
     app.include_router(datasets.router, prefix="/api")

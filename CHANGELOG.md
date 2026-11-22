@@ -1,11 +1,19 @@
 # Changelog
 
+## 1.0.0 — release preparation, 22 November 2026
+
+- Verified a real public Render Free/FastAPI/React deployment with Neon PostgreSQL.
+- Added bounded synthetic HTTPS acceptance and restart-persistence tools, a public
+  verification record and live application/user instructions in both READMEs.
+- Centralized API version metadata at 1.0.0. The release tag waits for remaining
+  restart, private operator-handoff and final CI/deployment checks.
+
 ## Unreleased — release quality
 
 - Recharts analytics, readable recipe parameters, rule validation and actionable row errors.
 - Profile distributions/IQR bounds, inventory/unmatched-key samples, guarded first-admin initialization and bounded processing/password memory.
 - Six-width accessibility checks, scoped mypy, advisory CI, real local benchmarks and backup/restore evidence; user/operator/deployment guides.
-- Public deployment and v1.0 verification remain open.
+- Public deployment was still open at this historical slice; see release preparation above.
 
 ## Unreleased
 
@@ -33,4 +41,5 @@
 - Corrected expiry comparison when PostgreSQL returns timestamps outside UTC.
 - Serialized each owner's import quota so simultaneous uploads cannot exceed the guest limit.
 
-This checkpoint is not a v1.0 release.
+The entries marked Unreleased describe the implementation slices accumulated
+before release preparation; they are not separate published releases.

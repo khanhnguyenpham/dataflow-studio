@@ -4,9 +4,17 @@ DataFlow Studio is a web workspace for inspecting spreadsheets and building repe
 
 [Tiếng Việt](README.vi.md)
 
-## Current checkpoint
+## Live application
 
-Import, profiling, versioned cleaning/export, reusable workflows and saved analytics work end to end. This is **not the finished platform** and there is no verified public deployment yet.
+[Open DataFlow Studio](https://dataflow-studio.onrender.com/). React and the
+FastAPI API run on Render Free; PostgreSQL persists in a separate Neon Free
+project. Public HTTPS acceptance was verified on 22 November 2026. A free service
+can take about a minute to wake after being idle. See the
+[verification record](docs/PUBLIC_VERIFICATION.md) for the tested commit and scope.
+
+For analysts, operations staff and students who receive spreadsheets each month,
+the workspace makes it possible to review data problems and reuse a preparation
+process without writing a new script for each file.
 
 Available in this working slice: isolated, two-hour guest sessions; sign-in and password changes; bounded CSV/XLSX imports; explicit selection of Excel sheets; dataset preview; missing values, duplicate rows, suggested types and review warnings; English/Vietnamese UI. Source bytes and values are retained without automatic correction. Accounts are created by an operator.
 
@@ -20,11 +28,28 @@ Reviewed bilingual column suggestions help align renamed monthly files.
 Start with the [user guide](docs/USER_GUIDE.en.md), or read the
 [operator guide](docs/ADMIN.md), [architecture](docs/ARCHITECTURE.md),
 [roadmap](docs/ROADMAP.md) and [release checks](docs/RELEASE_CHECKLIST.md).
-The [deployment configuration](docs/DEPLOYMENT.md) targets Render Free with
-external Neon PostgreSQL; account sign-in and real public verification are still open.
+The [deployment guide](docs/DEPLOYMENT.md) explains the live single-instance setup,
+manual deployment after green CI, secrets, persistence and free-host limits.
 See [implementation status](docs/IMPLEMENTATION_STATUS.md).
 
 ![DataFlow workspace with the synthetic sales sample](docs/images/workspace-desktop.png)
+
+## Try it in a few minutes
+
+1. Open the live app and choose **Try a private workspace**. No signup is needed.
+2. The synthetic sales sample loads automatically. Open **Data quality**. Inspect missing values,
+   duplicate rows and the invalid date. Warnings do not change the source.
+3. Open **Clean & export**. Add a trim or deduplication step, inspect the preview
+   and explicitly confirm the new version. Export CSV, XLSX or JSON.
+4. In **Workflows**, save reviewed steps and reuse them with another monthly
+   input. Changed column names must be aligned before the workflow can run.
+5. In **Analytics**, select a reviewed version and a grouping/measure. Preview
+   the totals, then save a report pinned to that version.
+
+Use the [two-month walkthrough](docs/USER_GUIDE.en.md) and the documented
+[synthetic fixtures](sample_data/README.md) for the join/schema-drift case.
+Guests have isolated workspaces that expire after two hours. Use synthetic data
+on this public portfolio instance; permanent accounts are operator-managed.
 
 ## Local setup
 
@@ -68,7 +93,12 @@ Mypy currently checks four core configuration/processing modules, not every
 endpoint. CI also runs PostgreSQL API checks, browser flows, known-advisory audits
 and a real Docker startup. Read the recorded evidence for each check's limits.
 
-Passwords use Argon2id. Sessions use HttpOnly cookies, CSRF checks and expiry. Data ownership is checked at the backend for list, preview, profiling and deletion. Rate limiting is currently per-process and intended for a single bounded instance; distributed request admission and independent security review are needed before a public multi-instance service.
+Passwords use Argon2id. Sessions use HttpOnly cookies, CSRF checks and expiry. Data ownership is checked at the backend for list, preview, profiling and deletion. Rate limiting is per-process and intended for a single bounded instance; distributed request admission and independent security review are needed before a multi-instance service.
+
+Workflows run synchronously within bounded request limits. Column matching uses
+explainable rules/string similarity; it is not a trained general-purpose model.
+There is no scheduler, distributed queue or large-file processing claim. See the
+[roadmap](docs/ROADMAP.md) for those extensions.
 
 There are no patient records, paid AI APIs or invented business metrics. The [sample](sample_data/README.md) is synthetic with documented expected defects.
 
