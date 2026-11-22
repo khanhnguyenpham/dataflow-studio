@@ -9,7 +9,7 @@ import {
   type User,
 } from "./api";
 
-export function useWorkspace() {
+export function useWorkspace(loadSelected = true) {
   const [user, setUser] = useState<User | null>(null),
     [initial, setInitial] = useState(true),
     [busy, setBusy] = useState(false),
@@ -65,7 +65,8 @@ export function useWorkspace() {
     }
   }, [user, refresh]);
   useEffect(() => {
-    if (!selected) {
+    if (!selected || !loadSelected) {
+      setLoading(false);
       setDetail(null);
       setProfile(null);
       return;
@@ -93,7 +94,7 @@ export function useWorkspace() {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [selected, page, revision]);
+  }, [selected, page, revision, loadSelected]);
   async function action<T>(work: () => Promise<T>) {
     setBusy(true);
     setError("");

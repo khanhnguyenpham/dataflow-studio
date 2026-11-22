@@ -65,3 +65,15 @@ local credentials, DB, environment and builds remain ignored. The local applicat
 at http://127.0.0.1:9001 remains a separate development instance.
 Use .runtime/connection.json for the current local PID; Windows venv launches a child
 Python process, so inspect parent and app/port arguments before any future restart.
+
+## Product usability refinement
+
+Implemented on `feat/workspace-overview`: owner-scoped metadata home, a monthly
+preparation landing page, useful empty states, dataset-to-analytics context,
+saved workflow source/lookup handoff and pinned-report reopening. Data and
+authentication contracts are retained. [Details and preflight evidence](PRODUCT_WORKSPACE.md).
+
+This slice passed 62 backend tests with real PostgreSQL, 4 React tests,
+Ruff/scoped mypy, ESLint/build and all 9 Edge browser flows. Scoped Welcome and
+six-width Overview accessibility/overflow checks passed after correcting small
+text contrast. Exact-commit CI and public rollout are separate gates for this slice.

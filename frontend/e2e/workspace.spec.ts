@@ -8,6 +8,7 @@ test("analytics rejects invalid numbers and exports a pinned cleaned report", as
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await page.getByRole("button", { name: "Try a private workspace" }).click();
+  await page.getByRole("button", { name: "My datasets", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "monthly-sales-sample.csv" }),
   ).toBeVisible();
@@ -188,6 +189,7 @@ test("monthly workflow joins lookup data and runs again on a new month", async (
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await page.getByRole("button", { name: "Try a private workspace" }).click();
+  await page.getByRole("button", { name: "My datasets", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "monthly-sales-sample.csv" }),
   ).toBeVisible();
@@ -250,16 +252,15 @@ test("monthly workflow joins lookup data and runs again on a new month", async (
     .getByRole("button", { name: "Save workflow", exact: true })
     .click();
   await expect(page.getByRole("status")).toContainText("Workflow saved.");
-  await page.getByRole("button", { name: "Workflows", exact: true }).click();
   await page
-    .getByRole("combobox", { name: "Select a workflow" })
-    .selectOption({ label: "Monthly report · v1" });
-  await page
-    .getByRole("combobox", { name: "Source dataset", exact: true })
-    .selectOption(source);
-  await page
-    .getByRole("combobox", { name: "Lookup / second dataset" })
-    .selectOption(lookup);
+    .getByRole("button", { name: "Open saved workflow", exact: true })
+    .click();
+  await expect(
+    page.getByRole("combobox", { name: "Source dataset", exact: true }),
+  ).toHaveValue(source);
+  await expect(
+    page.getByRole("combobox", { name: "Lookup / second dataset" }),
+  ).toHaveValue(lookup);
   await page.getByRole("button", { name: "Run workflow", exact: true }).click();
   await expect(
     page.getByText("Source: 6 rows · Result: 5 rows", { exact: true }),
@@ -302,6 +303,7 @@ test("guest inspects real parsed sample and can change language", async ({
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto("/");
   await page.getByRole("button", { name: "Try a private workspace" }).click();
+  await page.getByRole("button", { name: "My datasets", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "monthly-sales-sample.csv" }),
   ).toBeVisible();
@@ -333,6 +335,7 @@ test("preview cleaning, apply, export and restore the source", async ({
   await page.setViewportSize({ width: 1366, height: 900 });
   await page.goto("/");
   await page.getByRole("button", { name: "Try a private workspace" }).click();
+  await page.getByRole("button", { name: "My datasets", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "monthly-sales-sample.csv" }),
   ).toBeVisible();
@@ -383,6 +386,7 @@ test("mobile workspace uses row details without page overflow", async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await page.getByRole("button", { name: "Try a private workspace" }).click();
+  await page.getByRole("button", { name: "My datasets", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "monthly-sales-sample.csv" }),
   ).toBeVisible();

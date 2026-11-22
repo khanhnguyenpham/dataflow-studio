@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  ArrowRight,
+  LayoutDashboard,
   BrushCleaning,
   CheckCheck,
   ChevronLeft,
@@ -25,8 +25,11 @@ import { useWorkspace } from "./useWorkspace";
 import CleaningWorkspace from "./CleaningWorkspace";
 import WorkflowWorkspace from "./WorkflowWorkspace";
 import AdminWorkspace from "./AdminWorkspace";
+import Welcome from "./Welcome";
+import WorkspaceOverview from "./WorkspaceOverview";
 const AnalyticsWorkspace = lazy(() => import("./AnalyticsWorkspace"));
 const views = new Set([
+  "overview",
   "datasets",
   "quality",
   "cleaning",
@@ -37,20 +40,28 @@ const views = new Set([
   "administration",
 ]);
 const currentView = () =>
-  views.has(location.hash.slice(1)) ? location.hash.slice(1) : "datasets";
+  views.has(location.hash.slice(1)) ? location.hash.slice(1) : "overview";
 
 export default function App() {
   const { t, i18n } = useTranslation();
-  const w = useWorkspace();
   const [tab, setTab] = useState(currentView),
-    [login, setLogin] = useState(false),
     [importing, setImporting] = useState(false),
     [file, setFile] = useState<File | null>(null),
     [sheets, setSheets] = useState<string[]>([]),
     [sheet, setSheet] = useState(""),
     [encoding, setEncoding] = useState("utf-8-sig"),
     [notice, setNotice] = useState("");
+  const w = useWorkspace(["datasets", "quality", "cleaning"].includes(tab));
   const [sampleKind, setSampleKind] = useState("sales");
+  const [workflowComposer, setWorkflowComposer] = useState(false);
+  const [workflowContext, setWorkflowContext] = useState<{
+    id: string;
+    source: string;
+    lookup?: string;
+  } | null>(null);
+  const [analyticsContext, setAnalyticsContext] = useState<{
+    report: string;
+  } | null>(null);
   const fmt = (n: number) => new Intl.NumberFormat(i18n.language).format(n);
   const date = (s: string) =>
     new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium" }).format(
@@ -64,6 +75,13 @@ export default function App() {
   function navigate(view: string) {
     location.hash = view;
     setTab(view);
+    setWorkflowComposer(false);
+    if (view !== "workflows") setWorkflowContext(null);
+    if (view !== "analytics") setAnalyticsContext(null);
+  }
+  function openDataset(id: string, view = "datasets") {
+    w.select(id);
+    navigate(view);
   }
   async function submitFile(e: FormEvent) {
     e.preventDefault();
@@ -114,95 +132,19 @@ export default function App() {
   if (w.initial) return <main className="boot">{loading}</main>;
   if (!w.user)
     return (
-      <main className="welcome">
-        <header>
-          <div className="brand">
-            <Layers3 size={24} />
-            DataFlow <b>Studio</b>
-          </div>
-          {language}
-        </header>
-        <section className="hero">
-          <span className="eyebrow">DataFlow Studio</span>
-          <h1>{t("tagline")}</h1>
-          <p>{t("intro")}</p>
-          {error}
-          {notice && <p role="status">{notice}</p>}
-          <div className="hero-actions">
-            <button disabled={w.busy} onClick={() => void w.authenticate()}>
-              {w.busy ? (
-                <LoaderCircle className="spin" size={18} />
-              ) : (
-                <FlaskConical size={18} />
-              )}{" "}
-              {t("tryDemo")} <ArrowRight size={18} />
-            </button>
-            <button className="secondary" onClick={() => setLogin(!login)}>
-              {t("signIn")}
-            </button>
-          </div>
-          <small>{t("demoNote")}</small>
-          {login && (
-            <form
-              className="login-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const data = new FormData(e.currentTarget);
-                void w.authenticate({
-                  username: String(data.get("username")),
-                  password: String(data.get("password")),
-                });
-              }}
-            >
-              <label>
-                {t("username")}
-                <input
-                  name="username"
-                  autoComplete="username"
-                  required
-                  maxLength={100}
-                />
-              </label>
-              <label>
-                {t("password")}
-                <input
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  maxLength={128}
-                />
-              </label>
-              <button disabled={w.busy}>{t("signIn")}</button>
-            </form>
-          )}
-        </section>
-        <section className="welcome-example" aria-label={t("sampleLabel")}>
-          <div className="example-label">
-            <FileSpreadsheet size={18} />
-            {t("sampleLabel")}
-          </div>
-          <div className="example-row">
-            <span>Order ID</span>
-            <span>Order Date</span>
-            <span>Quantity</span>
-          </div>
-          <div className="example-row">
-            <span>003</span>
-            <span className="flag">31/02/2026</span>
-            <span className="flag">—</span>
-          </div>
-          <p>
-            <ShieldCheck size={16} />
-            {t("qualityNote")}
-          </p>
-        </section>
-      </main>
+      <Welcome
+        language={language}
+        error={error}
+        notice={notice}
+        busy={w.busy}
+        tryDemo={() => w.authenticate()}
+        signIn={(credentials) => w.authenticate(credentials)}
+      />
     );
   return (
     <div className="shell">
       <aside>
-        <a className="brand" href="#datasets">
+        <a className="brand" href="#overview">
           <Layers3 size={22} />
           <span>
             DataFlow <b>Studio</b>
@@ -214,6 +156,7 @@ export default function App() {
         </div>
         <nav aria-label={t("workspace")}>
           {[
+            ["overview", LayoutDashboard],
             ["datasets", Database],
             ["quality", CheckCheck],
             ["cleaning", BrushCleaning],
@@ -230,6 +173,7 @@ export default function App() {
               <button
                 key={String(key)}
                 className={tab === key ? "active" : ""}
+                aria-current={tab === key ? "page" : undefined}
                 onClick={() => navigate(String(key))}
               >
                 <ViewIcon size={18} />
@@ -265,7 +209,7 @@ export default function App() {
               <p className="eyebrow">{t(w.user.role)}</p>
               <h1>{t(tab === "analytics" ? "analyticsNav" : tab)}</h1>
             </div>
-            {(tab === "datasets" || tab === "quality") && (
+            {["overview", "datasets", "quality"].includes(tab) && (
               <button
                 disabled={w.busy}
                 onClick={() => setImporting(!importing)}
@@ -342,6 +286,24 @@ export default function App() {
               </div>
             </form>
           )}
+          {tab === "overview" && (
+            <WorkspaceOverview
+              key={w.datasets
+                .map((item) => `${item.id}:${item.version}`)
+                .join(",")}
+              openDataset={openDataset}
+              navigate={navigate}
+              importData={() => setImporting(true)}
+              openWorkflow={(id, source, lookup) => {
+                setWorkflowContext({ id, source, lookup });
+                navigate("workflows");
+              }}
+              openReport={(report) => {
+                setAnalyticsContext({ report });
+                navigate("analytics");
+              }}
+            />
+          )}
           {["datasets", "quality", "cleaning"].includes(tab) && (
             <>
               <div className="dataset-bar">
@@ -390,6 +352,30 @@ export default function App() {
                 </section>
               ) : (
                 <>
+                  <nav
+                    className="data-journey"
+                    aria-label={t("home.datasetJourney")}
+                  >
+                    {(
+                      ["datasets", "quality", "cleaning", "analytics"] as const
+                    ).map((view, index) => (
+                      <button
+                        key={view}
+                        aria-current={tab === view ? "step" : undefined}
+                        aria-label={t("home.goToStep", {
+                          step: index + 1,
+                          name: t(view === "analytics" ? "analyticsNav" : view),
+                        })}
+                        onClick={() => navigate(view)}
+                      >
+                        <span>{index + 1}</span>
+                        {t(view === "analytics" ? "analyticsNav" : view)}
+                      </button>
+                    ))}
+                    <small>
+                      {w.detail.name} · v{w.detail.version}
+                    </small>
+                  </nav>
                   <section className="metrics" aria-label={t("details")}>
                     {[
                       ["rows", w.detail.rows],
@@ -409,6 +395,11 @@ export default function App() {
                       detail={w.detail}
                       changed={w.changed}
                       datasets={w.datasets}
+                      startWorkflow={workflowComposer}
+                      openWorkflow={(id, source, lookup) => {
+                        setWorkflowContext({ id, source, lookup });
+                        navigate("workflows");
+                      }}
                     />
                   ) : tab === "datasets" ? (
                     <section className="data-panel">
@@ -579,11 +570,33 @@ export default function App() {
             </>
           )}
           {tab === "workflows" && (
-            <WorkflowWorkspace datasets={w.datasets} changed={w.changed} />
+            <WorkflowWorkspace
+              key={workflowContext?.id ?? "choose"}
+              datasets={w.datasets}
+              changed={w.changed}
+              createWorkflow={() => {
+                if (!w.datasets.length) {
+                  navigate("datasets");
+                  setImporting(true);
+                  return;
+                }
+                if (!w.selected) w.select(w.datasets[0].id);
+                navigate("cleaning");
+                setWorkflowComposer(true);
+              }}
+              initialWorkflowId={workflowContext?.id}
+              initialDatasetId={workflowContext?.source}
+              initialLookupId={workflowContext?.lookup}
+            />
           )}
           {tab === "analytics" && (
             <Suspense fallback={loading}>
-              <AnalyticsWorkspace datasets={w.datasets} />
+              <AnalyticsWorkspace
+                key={analyticsContext?.report ?? "new"}
+                datasets={w.datasets}
+                initialDatasetId={analyticsContext ? "" : w.selected}
+                initialReportId={analyticsContext?.report}
+              />
             </Suspense>
           )}
           {tab === "administration" && w.user.role === "admin" && (

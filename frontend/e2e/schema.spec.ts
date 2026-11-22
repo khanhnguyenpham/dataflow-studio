@@ -6,6 +6,7 @@ test("review a changed schema, preserve the source and run the saved workflow", 
   await page.setViewportSize({ width: 1366, height: 900 });
   await page.goto("/");
   await page.getByRole("button", { name: "Try a private workspace" }).click();
+  await page.getByRole("button", { name: "My datasets", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "monthly-sales-sample.csv" }),
   ).toBeVisible();

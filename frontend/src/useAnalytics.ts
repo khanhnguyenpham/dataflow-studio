@@ -38,8 +38,12 @@ export interface SavedReport extends Report {
   result: AggregateResult;
 }
 
-export function useAnalytics(datasets: Dataset[]) {
-  const [input, setInput] = useState(""),
+export function useAnalytics(
+  datasets: Dataset[],
+  initialDatasetId = "",
+  initialReportId = "",
+) {
+  const [input, setInput] = useState(initialDatasetId),
     [detail, setDetail] = useState<Detail | null>(null),
     [spec, setSpec] = useState<AggregateSpec>({
       group_by: "",
@@ -52,12 +56,33 @@ export function useAnalytics(datasets: Dataset[]) {
     [confirmed, setConfirmed] = useState(false),
     [reports, setReports] = useState<Report[]>([]),
     [saved, setSaved] = useState<SavedReport | null>(null),
-    [busy, setBusy] = useState(false),
+    [busy, setBusy] = useState(Boolean(initialReportId)),
     [error, setError] = useState(""),
     [page, setPage] = useState(1);
   const currentVersion = datasets.find((d) => d.id === input)?.version;
   const [workflowSaved, setWorkflowSaved] = useState(false);
   const generation = useRef(0);
+  useEffect(() => {
+    if (!initialReportId) return;
+    const controller = new AbortController();
+    const ticket = ++generation.current;
+    api<SavedReport>(`/reports/${initialReportId}`, {
+      signal: controller.signal,
+    })
+      .then((row) => {
+        if (ticket !== generation.current) return;
+        setSaved(row);
+        setResult(row.result);
+        setPage(1);
+      })
+      .catch((e) => {
+        if (!controller.signal.aborted) setError(e.code ?? "network");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setBusy(false);
+      });
+    return () => controller.abort();
+  }, [initialReportId]);
   useEffect(() => {
     const controller = new AbortController();
     api<{ items: Report[] }>("/reports", { signal: controller.signal })
@@ -125,6 +150,13 @@ export function useAnalytics(datasets: Dataset[]) {
     page,
     setPage,
     select: (id: string) => {
+      if (id === input) {
+        setSaved(null);
+        setResult(null);
+        setConfirmed(false);
+        setError("");
+        return;
+      }
       setWorkflowSaved(false);
       setInput(id);
       setDetail(null);

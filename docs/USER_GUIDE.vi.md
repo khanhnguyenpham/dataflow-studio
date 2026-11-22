@@ -9,6 +9,11 @@ Bảng bán hàng tháng 10 tự được nạp. Đây là dữ liệu tự tạ
 Phiên khách giữ tối đa ba bảng; tải kết quả cần giữ trước khi hết hạn. Quản trị viên
 tạo tài khoản thường khi cần lưu công việc lâu hơn.
 
+Trang **Tổng quan** mở đầu tiên, hiển thị dữ liệu gần đây, báo cáo giữ phiên bản
+và lịch sử quy trình của chính bạn. Mở một bộ dữ liệu để kiểm tra hoặc chọn
+**Nhập dữ liệu**. Khi đọc thất bại, trang hiện lỗi và nút thử lại; các con số ở
+đây không phải kết luận dữ liệu đã sạch.
+
 Chọn **Nhập dữ liệu** để tải CSV hoặc XLSX. Giới hạn ban đầu: 5 MiB, 10.000 dòng,
 100 cột. Chọn encoding đúng cho CSV hoặc sheet cần đọc trong Excel. Hệ thống không
 chạy macro, không truy cập liên kết ngoài và không tự sửa nội dung file.
@@ -55,6 +60,8 @@ nguồn và các bước đã làm.
    tháng 11, mỗi mẫu một lần; vừa đủ ba bảng. Không nạp tháng 10 lần thứ hai.
 2. Chọn tháng 10, thêm bước xóa trùng theo **Order ID**. Mở phần lưu quy trình,
    đặt tên và chọn ghép trái với danh mục theo **Product Code**.
+   Sau khi lưu, **Mở quy trình vừa lưu** giữ lựa chọn nguồn và danh mục. Bạn vẫn
+   cần chủ động chọn chạy và kiểm tra kết quả trước khi áp dụng.
 3. Trong **Quy trình**, chọn nguồn và danh mục rồi chạy. Kết quả xem trước có năm
    dòng và tên sản phẩm. Việc ghép tên chưa xử lý các lỗi ngày/lượng bán của tháng 10.
 4. Chuyển nguồn sang tháng 11 và chạy lại định nghĩa đã lưu. Kết quả có ba dòng.

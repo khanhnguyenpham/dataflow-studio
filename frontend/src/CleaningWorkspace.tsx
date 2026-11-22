@@ -47,10 +47,14 @@ export default function CleaningWorkspace({
   detail,
   changed,
   datasets,
+  openWorkflow,
+  startWorkflow = false,
 }: {
   detail: Detail;
   changed: () => Promise<void>;
   datasets: Dataset[];
+  openWorkflow?: (id: string, source: string, lookup: string) => void;
+  startWorkflow?: boolean;
 }) {
   const { t } = useTranslation();
   const w = useCleaning(detail, changed);
@@ -132,6 +136,8 @@ export default function CleaningWorkspace({
         datasets={datasets}
         columns={columns}
         disabled={w.busy}
+        openWorkflow={openWorkflow}
+        startOpen={startWorkflow}
       />
       {w.preview && (
         <section className="recipe-panel preview-result">

@@ -11,12 +11,26 @@ import SchemaAssistant from "./SchemaAssistant";
 export default function WorkflowWorkspace({
   datasets,
   changed,
+  createWorkflow,
+  initialWorkflowId = "",
+  initialDatasetId = "",
+  initialLookupId = "",
 }: {
   datasets: Dataset[];
   changed: () => Promise<void>;
+  createWorkflow?: () => void;
+  initialWorkflowId?: string;
+  initialDatasetId?: string;
+  initialLookupId?: string;
 }) {
   const { t, i18n } = useTranslation();
-  const w = useWorkflows(datasets, changed),
+  const w = useWorkflows(
+      datasets,
+      changed,
+      initialWorkflowId,
+      initialDatasetId,
+      initialLookupId,
+    ),
     definition = w.detail?.definition;
   return (
     <div className="cleaning-workspace" aria-busy={w.busy}>
@@ -32,6 +46,9 @@ export default function WorkflowWorkspace({
         <section className="empty">
           <h2>{t("wf.empty")}</h2>
           <p>{t("wf.emptyHint")}</p>
+          {createWorkflow && (
+            <button onClick={createWorkflow}>{t("home.createWorkflow")}</button>
+          )}
         </section>
       ) : (
         <label>
@@ -227,8 +244,9 @@ export default function WorkflowWorkspace({
                 <button
                   disabled={
                     w.busy ||
-                    !w.input ||
-                    (!!definition.integration && !w.lookup)
+                    !datasets.some((item) => item.id === w.input) ||
+                    (!!definition.integration &&
+                      !datasets.some((item) => item.id === w.lookup))
                   }
                   onClick={() => void w.run()}
                 >
