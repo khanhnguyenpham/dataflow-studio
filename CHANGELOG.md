@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added reviewed bilingual column matching, typed map/reorder operations and changed-schema walkthrough.
+- Added curated regression evaluation, metadata-only reads and bounded PostgreSQL connection/pool waits.
+
 - Added administrator account access/reset controls, last-admin protection, operational run status, revisioned quotas and metadata-only audit.
 - Added periodic retention, cached global/user payload accounting and production configuration guards.
 - Isolated browser checks in dataflow_e2e with ephemeral credentials, redacted output and cleanup.

@@ -1,4 +1,40 @@
 @import "tailwindcss";
+.schema-assistant {
+  border: 1px solid #dfe7e0;
+  border-radius: 6px;
+  padding: 12px;
+  margin: 12px 0;
+  min-width: 0;
+}
+.schema-assistant > summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+}
+.schema-assistant p {
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.schema-assistant .preview-scroll {
+  margin: 12px 0;
+}
+.schema-assistant select {
+  max-width: 210px;
+}
+.schema-assistant .quality-note {
+  display: block;
+  padding: 10px;
+}
+.mapping-preview {
+  margin-top: 18px;
+  border-top: 1px solid #dfe7e0;
+  padding-top: 12px;
+}
+.mapping-preview h3 {
+  font-size: 12px;
+  margin: 10px 0 5px;
+}
 .admin-tabs {
   align-items: center;
   display: flex;

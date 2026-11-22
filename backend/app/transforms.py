@@ -84,8 +84,20 @@ class Combine(Strict):
     separator: str = Field(max_length=10)
 
 
+class ColumnMapping(Strict):
+    source: str = Field(min_length=1, max_length=255)
+    target: str = Field(min_length=1, max_length=255)
+
+
+class MapColumns(Strict):
+    op: Literal["map_columns"]
+    mapping: list[ColumnMapping] = Field(min_length=1, max_length=100)
+    keep_extras: bool = True
+
+
 Step = Annotated[
-    Trim | Rename | Fill | Replace | Dedupe | Dates | Numbers | Filter | Split | Combine, Field(discriminator="op")
+    Trim | Rename | Fill | Replace | Dedupe | Dates | Numbers | Filter | Split | Combine | MapColumns,
+    Field(discriminator="op"),
 ]
 
 
@@ -235,6 +247,16 @@ def apply_steps(source_columns, source_records, steps, limits):
             columns.append(step.name)
             for row in records:
                 row.append(step.separator.join(row[i] or "" for i in indices))
+        elif isinstance(step, MapColumns):
+            sources = [pair.source for pair in step.mapping]
+            if len(set(sources)) != len(sources):
+                raise Problem("mapping_conflict")
+            indices = [column_index(columns, source) for source in sources]
+            extra = [i for i, name in enumerate(columns) if name not in sources] if step.keep_extras else []
+            names = [pair.target for pair in step.mapping] + [columns[i] for i in extra]
+            new_headers(names)
+            records = [[row[i] for i in indices + extra] for row in records]
+            columns = names
         if len(records) > limits.max_rows or len(columns) > limits.max_columns:
             raise Problem("dataset_limit")
         impacts.append({"op": step.op, "rows_before": before, "rows_after": len(records), "cell_updates": changed})

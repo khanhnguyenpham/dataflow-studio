@@ -1,0 +1,13 @@
+[
+  {"id":"exact","split":"validation","source":["Order ID","Quantity"],"targets":["Order ID","Quantity"],"expected":{"Order ID":"Order ID","Quantity":"Quantity"}},
+  {"id":"english-aliases","split":"validation","source":["sku","qty","unit_price"],"targets":["Product Code","Quantity","Unit Price"],"expected":{"Product Code":"sku","Quantity":"qty","Unit Price":"unit_price"}},
+  {"id":"vietnamese","split":"validation","source":["Mã hàng","Số lượng","Ngày đặt"],"targets":["Product Code","Quantity","Order Date"],"expected":{"Product Code":"Mã hàng","Quantity":"Số lượng","Order Date":"Ngày đặt"}},
+  {"id":"case-and-punctuation","split":"test","source":["OrderID","orderDate","Revenue"],"targets":["Order ID","Order Date","Total Amount"],"expected":{"Order ID":"OrderID","Order Date":"orderDate","Total Amount":"Revenue"}},
+  {"id":"unseen-customer-variant","split":"test","source":["MA_KH","Email Address"],"targets":["Customer ID","Email"],"expected":{"Customer ID":"MA_KH","Email":"Email Address"}},
+  {"id":"spelling-variant","split":"test","source":["Customer Identifer","Order Date"],"targets":["Customer Identifier","Order Date"],"expected":{"Customer Identifier":"Customer Identifer","Order Date":"Order Date"}},
+  {"id":"no-match","split":"test","source":["Item Notes","Region"],"targets":["Order Date","Quantity"],"expected":{"Order Date":null,"Quantity":null}},
+  {"id":"ambiguous-alias","split":"test","source":["qty","Quantity"],"targets":["Số lượng"],"expected":{"Số lượng":null}},
+  {"id":"competing-targets","split":"test","source":["sku"],"targets":["Product Code","SKU"],"expected":{"Product Code":null,"SKU":"sku"}},
+  {"id":"generic-id","split":"test","source":["Customer ID","Order ID"],"targets":["ID"],"expected":{"ID":null}},
+  {"id":"missing-date","split":"test","source":["qty","Product Code"],"targets":["Quantity","Order Date","Product Code"],"expected":{"Quantity":"qty","Order Date":null,"Product Code":"Product Code"}}
+]

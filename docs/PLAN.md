@@ -34,4 +34,4 @@ Each slice goes through a feature branch and PR. Merge only after the exact comm
 
 ## Next slice
 
-Foundation/import, cleaning/export, workflows/integration and saved analytics are implemented. Administrator controls and bounded retention now pass local checks. Next: evaluated rule-based mapping, release review, and verified public deployment. Keep owner boundaries for every input, version and derived report.
+Foundation/import, cleaning/export, workflows/integration and saved analytics are implemented. Administrator controls and bounded retention now pass local checks. Reviewed rule-based mapping and its small labelled regression evaluation now pass local checks. Next: release audit, requested chart-library integration, inventory/edge-case fixtures, benchmarks and verified public deployment. Keep owner boundaries for every input, version and derived report.

@@ -138,7 +138,8 @@
     "account_limit": "Đã đạt giới hạn tài khoản thường.",
     "account_not_found": "Không tìm thấy tài khoản.",
     "guest_capacity": "Đã đủ số không gian guest đang dùng. Thử lại sau hoặc đăng nhập tài khoản thường.",
-    "service_storage_limit": "Đã đạt dung lượng chung. Người quản trị cần kiểm tra dữ liệu hết hạn và giới hạn."
+    "service_storage_limit": "Đã đạt dung lượng chung. Người quản trị cần kiểm tra dữ liệu hết hạn và giới hạn.",
+    "mapping_conflict": "Một cột nguồn không thể ghép vào nhiều cột đích."
   },
   "cleaning": "Làm sạch & xuất",
   "clean": {
@@ -207,7 +208,8 @@
     "number": "Chuẩn hóa số",
     "filter": "Lọc dòng",
     "split": "Tách cột",
-    "combine": "Ghép cột"
+    "combine": "Ghép cột",
+    "map_columns": "Khớp tên và thứ tự cột"
   },
   "workflows": "Quy trình",
   "wf": {
@@ -421,5 +423,30 @@
     "guests": "Guest",
     "previews": "Bản xem trước",
     "sessions": "Phiên đăng nhập"
+  },
+  "mapping": {
+    "title": "Kiểm tra và khớp tên cột",
+    "explain": "Gợi ý dựa trên chuẩn hóa tên, từ đồng nghĩa Anh–Việt và độ giống văn bản; không đọc giá trị hay đoán ý nghĩa nghiệp vụ. Hãy kiểm tra từng lựa chọn. Hệ thống không tự đổi dữ liệu.",
+    "check": "Gợi ý cột tương ứng",
+    "expected": "Cột quy trình yêu cầu",
+    "source": "Cột trong bảng này",
+    "score": "Điểm giống theo quy tắc",
+    "choose": "Cột đầu vào cho {{target}}",
+    "review": "Kiểm tra rồi chọn",
+    "manual": "Cần chọn thủ công",
+    "normalized_name": "Tên đã chuẩn hóa",
+    "alias_rule": "Quy tắc đồng nghĩa",
+    "text_similarity": "Độ giống văn bản",
+    "incomplete": "Mỗi cột yêu cầu cần một cột đầu vào riêng. Kiểm tra các lựa chọn còn thiếu hoặc không rõ.",
+    "extras": "Cột đầu vào ngoài phần ánh xạ:",
+    "drop": "Loại các cột dư này khỏi phiên bản dẫn xuất. Tệp nguồn vẫn được giữ nguyên.",
+    "confirmNote": "Bản xem trước sắp cột theo quy trình và chỉ đổi tên các cột bạn chọn. Điểm giống không phải xác suất đúng.",
+    "preview": "Xem trước cách khớp cột",
+    "before": "Thứ tự cột hiện tại",
+    "after": "Thứ tự cột đề xuất",
+    "apply": "Xác nhận khớp cột",
+    "saved": "Đã lưu thay đổi cột thành phiên bản mới. Chạy lại quy trình để kiểm tra.",
+    "aligned": "Các cột đã khớp; không cần áp dụng thay đổi.",
+    "variantSample": "Tháng 11: đổi tên cột"
   }
 }
