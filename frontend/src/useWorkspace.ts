@@ -3,6 +3,8 @@ import {
   api,
   post,
   ApiError,
+  onSessionExpired,
+  setSessionAuthenticated,
   type Dataset,
   type Detail,
   type Profile,
@@ -13,7 +15,8 @@ export function useWorkspace(loadSelected = true) {
   const [user, setUser] = useState<User | null>(null),
     [initial, setInitial] = useState(true),
     [busy, setBusy] = useState(false),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [notice, setNotice] = useState("");
   const [datasets, setDatasets] = useState<Dataset[]>([]),
     [selected, setSelected] = useState(""),
     [page, setPage] = useState(1),
@@ -27,6 +30,20 @@ export function useWorkspace(loadSelected = true) {
     max_rows: number;
     max_columns: number;
   } | null>(null);
+  useEffect(
+    () =>
+      onSessionExpired(() => {
+        refreshGeneration.current++;
+        setUser(null);
+        setDatasets([]);
+        setSelected("");
+        setDetail(null);
+        setProfile(null);
+        setNotice("");
+        setError("session_expired");
+      }),
+    [],
+  );
   useEffect(() => {
     const controller = new AbortController();
     api<{ upload_max_bytes: number; max_rows: number; max_columns: number }>(
@@ -47,15 +64,27 @@ export function useWorkspace(loadSelected = true) {
   useEffect(() => {
     const controller = new AbortController();
     api<{ user: User }>("/auth/session", { signal: controller.signal })
-      .then((x) => setUser(x.user))
+      .then((x) => {
+        if (controller.signal.aborted) return;
+        setSessionAuthenticated(true);
+        setUser(x.user);
+      })
       .catch((e) => {
-        if (e instanceof ApiError && e.status !== 401) setError(e.code);
+        if (
+          !controller.signal.aborted &&
+          e instanceof ApiError &&
+          e.status !== 401
+        )
+          setError(e.code);
       })
       .finally(() => setInitial(false));
     return () => controller.abort();
   }, []);
   useEffect(() => {
-    if (user) void refresh().catch((e) => setError(e.code));
+    if (user)
+      void refresh().catch((e) => {
+        if (e instanceof ApiError && e.status !== 401) setError(e.code);
+      });
     else {
       refreshGeneration.current++;
       setDatasets([]);
@@ -88,7 +117,12 @@ export function useWorkspace(loadSelected = true) {
         setProfile(p);
       })
       .catch((e) => {
-        if (!controller.signal.aborted) setError(e.code ?? "unknown");
+        if (
+          !controller.signal.aborted &&
+          e instanceof ApiError &&
+          e.status !== 401
+        )
+          setError(e.code);
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false);
@@ -98,10 +132,19 @@ export function useWorkspace(loadSelected = true) {
   async function action<T>(work: () => Promise<T>) {
     setBusy(true);
     setError("");
+    setNotice("");
     try {
       return await work();
     } catch (e) {
-      setError(e instanceof ApiError ? e.code : "unknown");
+      if (
+        !(e instanceof DOMException && e.name === "AbortError") &&
+        !(
+          e instanceof ApiError &&
+          e.status === 401 &&
+          e.code !== "invalid_login"
+        )
+      )
+        setError(e instanceof ApiError ? e.code : "unknown");
       return undefined;
     } finally {
       setBusy(false);
@@ -113,6 +156,7 @@ export function useWorkspace(loadSelected = true) {
         body ? "/auth/login" : "/auth/guest",
         body,
       );
+      setSessionAuthenticated(true);
       setUser(result.user);
       if (!body) {
         const sample = await post<Dataset>("/datasets/sample");
@@ -163,13 +207,16 @@ export function useWorkspace(loadSelected = true) {
       } catch (e) {
         if (!(e instanceof ApiError && e.status === 401)) throw e;
       }
+      setSessionAuthenticated(false);
       setUser(null);
     });
   }
   async function password(current_password: string, new_password: string) {
     return action(async () => {
       await post("/auth/password", { current_password, new_password });
+      setSessionAuthenticated(false);
       setUser(null);
+      setNotice("passwordChanged");
       return true;
     });
   }
@@ -178,6 +225,7 @@ export function useWorkspace(loadSelected = true) {
     initial,
     busy,
     error,
+    notice,
     setError,
     datasets,
     selected,

@@ -27,6 +27,7 @@ import WorkflowWorkspace from "./WorkflowWorkspace";
 import AdminWorkspace from "./AdminWorkspace";
 import Welcome from "./Welcome";
 import WorkspaceOverview from "./WorkspaceOverview";
+import type { CleaningDrafts } from "./useCleaning";
 const AnalyticsWorkspace = lazy(() => import("./AnalyticsWorkspace"));
 const views = new Set([
   "overview",
@@ -43,15 +44,34 @@ const currentView = () =>
   views.has(location.hash.slice(1)) ? location.hash.slice(1) : "overview";
 
 export default function App() {
+  const [tab, setTab] = useState(currentView);
+  const w = useWorkspace(["datasets", "quality", "cleaning"].includes(tab));
+  return (
+    <Workspace
+      key={w.user?.id ?? "signed-out"}
+      w={w}
+      tab={tab}
+      setTab={setTab}
+    />
+  );
+}
+
+function Workspace({
+  w,
+  tab,
+  setTab,
+}: {
+  w: ReturnType<typeof useWorkspace>;
+  tab: string;
+  setTab: (tab: string) => void;
+}) {
   const { t, i18n } = useTranslation();
-  const [tab, setTab] = useState(currentView),
-    [importing, setImporting] = useState(false),
+  const [drafts] = useState<CleaningDrafts>(() => new Map());
+  const [importing, setImporting] = useState(false),
     [file, setFile] = useState<File | null>(null),
     [sheets, setSheets] = useState<string[]>([]),
     [sheet, setSheet] = useState(""),
-    [encoding, setEncoding] = useState("utf-8-sig"),
-    [notice, setNotice] = useState("");
-  const w = useWorkspace(["datasets", "quality", "cleaning"].includes(tab));
+    [encoding, setEncoding] = useState("utf-8-sig");
   const [sampleKind, setSampleKind] = useState("sales");
   const [workflowComposer, setWorkflowComposer] = useState(false);
   const [workflowContext, setWorkflowContext] = useState<{
@@ -135,7 +155,7 @@ export default function App() {
       <Welcome
         language={language}
         error={error}
-        notice={notice}
+        notice={w.notice ? t(w.notice) : ""}
         busy={w.busy}
         tryDemo={() => w.authenticate()}
         signIn={(credentials) => w.authenticate(credentials)}
@@ -203,7 +223,7 @@ export default function App() {
         </header>
         <main id="workspace-content">
           {error}
-          {notice && <p role="status">{notice}</p>}
+          {w.notice && <p role="status">{t(w.notice)}</p>}
           <div className="page-title">
             <div>
               <p className="eyebrow">{t(w.user.role)}</p>
@@ -395,6 +415,7 @@ export default function App() {
                       detail={w.detail}
                       changed={w.changed}
                       datasets={w.datasets}
+                      drafts={drafts}
                       startWorkflow={workflowComposer}
                       openWorkflow={(id, source, lookup) => {
                         setWorkflowContext({ id, source, lookup });
@@ -632,13 +653,10 @@ export default function App() {
                 onSubmit={async (e) => {
                   e.preventDefault();
                   const f = new FormData(e.currentTarget);
-                  if (
-                    await w.password(
-                      String(f.get("current")),
-                      String(f.get("new")),
-                    )
-                  )
-                    setNotice(t("passwordChanged"));
+                  await w.password(
+                    String(f.get("current")),
+                    String(f.get("new")),
+                  );
                 }}
               >
                 <label>

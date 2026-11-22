@@ -39,6 +39,13 @@ Trong **Làm sạch và xuất**, chọn thao tác, chọn cột rồi thêm bư
 giá trị có hai cách hiểu sẽ bị từ chối. Đổi số phải chọn dấu thập phân và phân nhóm.
 Không đoán số tiền, mã hoặc ngày đúng thay người dùng.
 
+Các bước được giữ khi chuyển trang hoặc đổi bảng trong tab đang đăng nhập.
+Khi quay lại, cần xem trước lại rồi mới áp dụng; bản xem trước và các xác nhận
+không được giữ. Đổi phiên bản sẽ bỏ bản nháp cũ. Tải lại trang, đăng xuất hoặc
+hết phiên sẽ xóa các bước tạm này. Muốn dùng ở lần sau, hãy lưu thành quy trình.
+Phiên hết hạn hoặc bị thu hồi sẽ đưa bạn về đăng nhập; nhập sai mật khẩu hiện tại
+khi đổi mật khẩu không làm đóng vùng làm việc.
+
 Bước **Kiểm tra quy tắc** kiểm tra ô bắt buộc, tính duy nhất, số hoặc ngày hợp lệ.
 Bước này không sửa giá trị. Nếu không đạt, quy trình dừng và chỉ rõ cột, số dòng
 đầu tiên cần kiểm tra. Số dòng tính theo đầu vào của chính bước đó, gồm dòng tiêu đề;

@@ -7,7 +7,7 @@ import ErrorDetails from "./ErrorDetails";
 import { recipeColumns } from "./recipes";
 import StepBuilder from "./StepBuilder";
 import WorkflowSaveForm from "./WorkflowSaveForm";
-import { useCleaning, type Slice } from "./useCleaning";
+import { useCleaning, type Slice, type CleaningDrafts } from "./useCleaning";
 
 function PreviewTable({ value, label }: { value: Slice; label: string }) {
   const { t, i18n } = useTranslation();
@@ -47,17 +47,19 @@ export default function CleaningWorkspace({
   detail,
   changed,
   datasets,
+  drafts,
   openWorkflow,
   startWorkflow = false,
 }: {
   detail: Detail;
   changed: () => Promise<void>;
   datasets: Dataset[];
+  drafts: CleaningDrafts;
   openWorkflow?: (id: string, source: string, lookup: string) => void;
   startWorkflow?: boolean;
 }) {
   const { t } = useTranslation();
-  const w = useCleaning(detail, changed);
+  const w = useCleaning(detail, changed, drafts);
   const [format, setFormat] = useState("xlsx"),
     [confirmed, setConfirmed] = useState(false);
   const columns = recipeColumns(detail.column_names, w.steps);
@@ -128,6 +130,7 @@ export default function CleaningWorkspace({
             </button>
           </div>
           <p className="muted">{t("clean.previewNote")}</p>
+          <p className="muted">{t("clean.draftNote")}</p>
         </section>
       </div>
       <WorkflowSaveForm

@@ -76,7 +76,7 @@
   "error": {
     "xlsx_values": "Some text cannot be stored in Excel without loss (control characters or more than 32,767 characters). Export JSON instead.",
     "unauthorized": "Please sign in or start a new guest workspace.",
-    "session_expired": "This guest workspace has expired. Start a new one.",
+    "session_expired": "Your session has ended. Sign in again or start a new private workspace.",
     "csrf": "Your session changed. Reload and try again.",
     "forbidden": "This account cannot perform that action.",
     "origin_forbidden": "This website address is not allowed by the server.",
@@ -178,6 +178,7 @@
     "preview": "Preview changes",
     "clear": "Clear recipe",
     "previewNote": "Up to 20 steps. Each preview replaces this dataset's previous draft and expires after 15 minutes.",
+    "draftNote": "Steps stay here when you change pages in this signed-in tab. Refreshing or signing out clears them. Save a workflow to reuse them later; always preview again before applying.",
     "review": "Review changes",
     "previewRows": "First 10 rows shown",
     "before": "Before",

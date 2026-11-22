@@ -49,14 +49,26 @@ export interface Version {
   steps: Step[];
 }
 
-export function useCleaning(detail: Detail, changed: () => Promise<void>) {
-  const [steps, setSteps] = useState<Step[]>([]),
+// One map per mounted identity; never written to browser storage or the server.
+export type CleaningDrafts = Map<string, { version: number; steps: Step[] }>;
+
+export function useCleaning(
+  detail: Detail,
+  changed: () => Promise<void>,
+  drafts: CleaningDrafts,
+) {
+  const [steps, setSteps] = useState<Step[]>(() => {
+      const draft = drafts.get(detail.id);
+      return draft?.version === detail.version ? draft.steps : [];
+    }),
     [preview, setPreview] = useState<Preview | null>(null);
   const [versions, setVersions] = useState<Version[]>([]),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const [errorDetails, setErrorDetails] = useState<ProblemDetails>();
   useEffect(() => {
+    if (drafts.get(detail.id)?.version !== detail.version)
+      drafts.delete(detail.id);
     const controller = new AbortController();
     api<{ items: Version[] }>(`/datasets/${detail.id}/versions`, {
       signal: controller.signal,
@@ -66,7 +78,7 @@ export function useCleaning(detail: Detail, changed: () => Promise<void>) {
         if (!controller.signal.aborted) setError(e.code ?? "unknown");
       });
     return () => controller.abort();
-  }, [detail.id, detail.version]);
+  }, [detail.id, detail.version, drafts]);
   async function perform(work: () => Promise<void>) {
     setBusy(true);
     setError("");
@@ -81,6 +93,9 @@ export function useCleaning(detail: Detail, changed: () => Promise<void>) {
     }
   }
   const updateSteps = (value: Step[]) => {
+    if (value.length)
+      drafts.set(detail.id, { version: detail.version, steps: value });
+    else drafts.delete(detail.id);
     setSteps(value);
     setPreview(null);
     setError("");
@@ -107,6 +122,7 @@ export function useCleaning(detail: Detail, changed: () => Promise<void>) {
       perform(async () => {
         if (!preview) return;
         await post(`/datasets/${detail.id}/preview/${preview.id}/apply`);
+        drafts.delete(detail.id);
         setPreview(null);
         setSteps([]);
         await changed();
@@ -117,6 +133,7 @@ export function useCleaning(detail: Detail, changed: () => Promise<void>) {
           expected_version: detail.version,
           version,
         });
+        drafts.delete(detail.id);
         setPreview(null);
         setSteps([]);
         await changed();

@@ -48,5 +48,33 @@ Existing quality/analytics accessibility and functional checks still passed.
 These checks do not certify all screens or full WCAG conformance.
 
 Screenshots in `docs/images/product-*` are from actual local browser flows with
-synthetic data. Exact-head/merged-main CI and a real public rollout must be
-verified separately; local checks are not evidence of a public deployment.
+synthetic data. PR #11 then passed exact-head CI and merged-main
+[CI at 9cf543f](https://github.com/khanhnguyenpham/dataflow-studio/actions/runs/45026526251).
+That exact main SHA was observed Live on Render. Thirteen additional public API
+checks and native Edge navigation verified owner counts, workflow execution/apply,
+restore, a pinned report and peer isolation. See [public verification](PUBLIC_VERIFICATION.md).
+
+## Recipe continuity and ended sessions
+
+Cleaning steps survive navigation between workspace pages and datasets in the
+same signed-in tab. The cache belongs to the mounted identity and is keyed by
+dataset and version. It contains recipe steps only: no source rows, preview,
+export approval or apply confirmation. Returning to a recipe requires a fresh
+preview. A changed version drops its draft; successful apply/restore clears it;
+a failed apply retains the steps. Refreshing or ending the session clears drafts.
+Save a reusable workflow for persistent work.
+
+An authenticated `unauthorized`/`session_expired` response closes the workspace,
+clears selected data and shows a sign-in message. An incorrect current password
+does not close it. JSON reads and downloads reject late responses from an older
+same-tab identity, including stale 401s that could otherwise close a new session.
+Keying the workspace by identity also resets file selections, previews and workflow
+handoffs. This is UI lifecycle protection; backend ownership remains authoritative.
+
+Local checks for this change on 22 November: **14 React tests**, ESLint,
+TypeScript/Vite build and **10 Edge browser flows** passed. The new browser flow
+uses actual backend logout to revoke its synthetic guest, then verifies the ended
+session screen and a fresh empty recipe. The other nine flows still pass, including
+scoped axe/responsive checks. No database or processing contract changed. These
+local results do not establish deployment; a new exact-head CI, merged-main CI and
+public rollout must be verified for each subsequent source commit.

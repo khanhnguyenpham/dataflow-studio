@@ -76,7 +76,7 @@
   "error": {
     "xlsx_values": "Một số văn bản không thể lưu nguyên vẹn trong Excel (ký tự điều khiển hoặc hơn 32.767 ký tự). Hãy xuất JSON.",
     "unauthorized": "Vui lòng đăng nhập hoặc mở không gian dùng thử mới.",
-    "session_expired": "Không gian dùng thử đã hết hạn. Hãy mở một không gian mới.",
+    "session_expired": "Phiên đăng nhập đã kết thúc. Hãy đăng nhập lại hoặc mở không gian dùng thử mới.",
     "csrf": "Phiên đăng nhập đã đổi. Tải lại trang rồi thử lại.",
     "forbidden": "Tài khoản này không có quyền thực hiện thao tác.",
     "origin_forbidden": "Địa chỉ web này chưa được máy chủ cho phép.",
@@ -178,6 +178,7 @@
     "preview": "Xem trước thay đổi",
     "clear": "Xóa các bước",
     "previewNote": "Tối đa 20 bước. Bản xem trước mới thay thế bản nháp cũ của bảng và hết hạn sau 15 phút.",
+    "draftNote": "Các bước được giữ khi chuyển trang trong tab đang đăng nhập. Tải lại trang hoặc đăng xuất sẽ xóa chúng. Hãy lưu thành quy trình để dùng lại; luôn xem trước lại rồi mới áp dụng.",
     "review": "Kiểm tra thay đổi",
     "previewRows": "Hiển thị 10 dòng đầu",
     "before": "Trước",

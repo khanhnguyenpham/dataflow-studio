@@ -40,6 +40,13 @@ Steps run in the listed order. Dates require explicit accepted formats; selectin
 both day-first and month-first formats rejects ambiguous dates. Number conversion
 requires explicit decimal/thousands separators.
 
+Your recipe steps stay when you change pages or datasets in this signed-in tab.
+Return and preview again before applying; previews and confirmations are not
+retained. A different version starts without the old draft. Refreshing the page,
+signing out or an ended session clears these temporary steps. Save a workflow
+when you need to keep them for another visit. An ended/revoked session returns
+you to sign-in; a wrong current password alone does not close the workspace.
+
 **Check a rule** validates required values, uniqueness, normalized numbers or
 dates without changing values. A failure stops the recipe and identifies the
 column and the first affected row numbers. Those numbers refer to the input of
