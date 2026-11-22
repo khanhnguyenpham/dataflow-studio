@@ -16,11 +16,16 @@ Sau thời gian không sử dụng, host Free có thể mất khoảng một ph�
 ## Chạy thử
 
 Mở link công khai, chọn **Mở không gian dùng thử riêng**; mẫu bán hàng được nạp sẵn.
-Vào **Chất lượng dữ liệu** để xem vấn đề; qua **Làm sạch & xuất** để thêm bước,
+Trang **Tổng quan** hiển thị dữ liệu gần đây, quy trình và báo cáo của chính bạn.
+Mở một bộ dữ liệu để xem chất lượng; qua **Làm sạch & xuất** để thêm bước,
 xem trước, xác nhận phiên bản và tải kết quả. **Quy trình** dùng lại các bước đã
 lưu; **Phân tích** tạo biểu đồ và lưu báo cáo theo phiên bản đã xem.
 Hướng dẫn đầy đủ nằm trong
 [hướng dẫn người dùng](docs/USER_GUIDE.vi.md).
+
+Mở quy trình vừa lưu sẽ giữ lựa chọn nguồn và danh mục. Chuyển sang phân tích
+giữ bộ dữ liệu đang chọn; mở báo cáo gần đây giữ đúng phiên bản đã lưu.
+Xem [luồng làm việc](docs/PRODUCT_WORKSPACE.md) và ảnh thật trong README tiếng Anh.
 
 Để chạy local, làm theo lệnh trong [README tiếng Anh](README.md#local-setup),
 dùng PostgreSQL và môi trường Python riêng. Khi Excel có nhiều trang tính, cần

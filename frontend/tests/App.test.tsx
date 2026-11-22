@@ -28,7 +28,7 @@ test("welcome recovers from an unavailable session and switches locale", async (
   render(<App />);
   expect(
     await screen.findByRole("heading", {
-      name: "Understand your data before changing it.",
+      name: "Turn monthly spreadsheets into a repeatable report.",
     }),
   ).toBeVisible();
   fireEvent.change(screen.getByRole("combobox", { name: "Language" }), {
@@ -36,7 +36,7 @@ test("welcome recovers from an unavailable session and switches locale", async (
   });
   expect(
     await screen.findByRole("heading", {
-      name: "Hiểu dữ liệu trước khi thay đổi.",
+      name: "Từ bảng tính mỗi tháng đến quy trình báo cáo dùng lại.",
     }),
   ).toBeVisible();
 });

@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — workspace usability
+
+- Added a monthly preparation landing page and an owner-scoped workspace home
+  with real recent datasets, reports and workflow activity.
+- Retained dataset/source/lookup/report context between preparation stages;
+  added a direct workflow-creation path and actionable empty states.
+- Kept home metadata-only, added owner/version integration checks and expanded
+  local browser verification to nine flows with six-width Overview checks.
+
 ## 1.0.0 — release preparation, 22 November 2026
 
 - Verified a real public Render Free/FastAPI/React deployment with Neon PostgreSQL.

@@ -7,11 +7,15 @@ import DataChart from "./DataChart";
 
 export default function AnalyticsWorkspace({
   datasets,
+  initialDatasetId = "",
+  initialReportId = "",
 }: {
   datasets: Dataset[];
+  initialDatasetId?: string;
+  initialReportId?: string;
 }) {
   const { t, i18n } = useTranslation(),
-    w = useAnalytics(datasets);
+    w = useAnalytics(datasets, initialDatasetId, initialReportId);
   const [exportFormat, setExportFormat] = useState("csv");
   const spec = w.saved?.specification ?? w.spec;
   const fmt = (value: number | string | null) =>

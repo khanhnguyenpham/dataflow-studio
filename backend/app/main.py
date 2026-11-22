@@ -13,7 +13,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.middleware.cors import CORSMiddleware
 
-from . import __version__, admin, auth, datasets, reports, schema_api, versions, workflows
+from . import __version__, admin, auth, datasets, overview, reports, schema_api, versions, workflows
 from .maintenance import retention_loop
 from .config import Settings
 from .db import database
@@ -147,6 +147,7 @@ def create_app(settings: Settings | None = None):
     app.include_router(reports.router, prefix="/api")
     app.include_router(admin.router, prefix="/api")
     app.include_router(schema_api.router, prefix="/api")
+    app.include_router(overview.router, prefix="/api")
 
     @app.get("/api/config")
     def public_config():

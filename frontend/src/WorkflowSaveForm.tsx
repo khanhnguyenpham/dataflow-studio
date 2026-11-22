@@ -10,20 +10,28 @@ export default function WorkflowSaveForm({
   datasets,
   columns,
   disabled,
+  openWorkflow,
+  startOpen = false,
 }: {
   detail: Detail;
   steps: Step[];
   datasets: Dataset[];
   columns: string[];
   disabled: boolean;
+  openWorkflow?: (id: string, source: string, lookup: string) => void;
+  startOpen?: boolean;
 }) {
   const { t } = useTranslation();
+  const [expanded, setExpanded] = useState(startOpen);
   const [mode, setMode] = useState("none"),
     [rightId, setRightId] = useState(""),
     [rightColumns, setRightColumns] = useState<string[]>([]),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [saved, setSaved] = useState(false);
+    [saved, setSaved] = useState<string | null>(null);
+  useEffect(() => {
+    setSaved(null);
+  }, [steps, detail.version]);
   useEffect(() => {
     if (!rightId) return;
     const controller = new AbortController();
@@ -40,10 +48,10 @@ export default function WorkflowSaveForm({
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     setBusy(true);
-    setSaved(false);
+    setSaved(null);
     setError("");
     try {
-      await post("/workflows", {
+      const created = await post<{ id: string }>("/workflows", {
         name: String(form.get("name")),
         description: String(form.get("description")),
         dataset_id: detail.id,
@@ -64,7 +72,7 @@ export default function WorkflowSaveForm({
                 allow_unmatched: form.get("allow_unmatched") === "on",
               },
       });
-      setSaved(true);
+      setSaved(created.id);
     } catch (e) {
       setError(e instanceof ApiError ? e.code : "network");
     } finally {
@@ -73,20 +81,40 @@ export default function WorkflowSaveForm({
   }
   return (
     <section className="recipe-panel">
-      <details>
+      <details
+        open={expanded}
+        onToggle={(event) => setExpanded(event.currentTarget.open)}
+      >
         <summary className="section-summary">{t("wf.saveTitle")}</summary>
         <p>{t("wf.saveHint")}</p>
         {saved && (
-          <p role="status" className="success">
-            {t("wf.saved")}
-          </p>
+          <div className="saved-workflow-action">
+            <p role="status" className="success">
+              {t("wf.saved")}
+            </p>
+            {openWorkflow && (
+              <button
+                type="button"
+                className="secondary"
+                onClick={() =>
+                  openWorkflow(saved, detail.id, mode === "none" ? "" : rightId)
+                }
+              >
+                {t("home.openSavedWorkflow")}
+              </button>
+            )}
+          </div>
         )}
         {error && (
           <div role="alert" className="error">
             {t(`error.${error}`, { defaultValue: t("error.unknown") })}
           </div>
         )}
-        <form className="step-form" onSubmit={save}>
+        <form
+          className="step-form"
+          onSubmit={save}
+          onChange={() => setSaved(null)}
+        >
           <div className="form-row">
             <label>
               {t("wf.name")}

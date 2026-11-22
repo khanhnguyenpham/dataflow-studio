@@ -32,12 +32,15 @@ The [deployment guide](docs/DEPLOYMENT.md) explains the live single-instance set
 manual deployment after green CI, secrets, persistence and free-host limits.
 See [implementation status](docs/IMPLEMENTATION_STATUS.md).
 
-![DataFlow workspace with the synthetic sales sample](docs/images/workspace-desktop.png)
+![Monthly preparation entry point](docs/images/product-welcome.png)
+
+![Workspace overview with actual synthetic test data and a saved report](docs/images/product-overview-1366.png)
 
 ## Try it in a few minutes
 
 1. Open the live app and choose **Try a private workspace**. No signup is needed.
-2. The synthetic sales sample loads automatically. Open **Data quality**. Inspect missing values,
+2. The synthetic sales sample loads automatically. **Overview** shows your own
+   datasets, saved reports and workflow history. Open a recent dataset to inspect missing values,
    duplicate rows and the invalid date. Warnings do not change the source.
 3. Open **Clean & export**. Add a trim or deduplication step, inspect the preview
    and explicitly confirm the new version. Export CSV, XLSX or JSON.
@@ -45,6 +48,10 @@ See [implementation status](docs/IMPLEMENTATION_STATUS.md).
    input. Changed column names must be aligned before the workflow can run.
 5. In **Analytics**, select a reviewed version and a grouping/measure. Preview
    the totals, then save a report pinned to that version.
+
+The selected dataset carries into analytics. **Open saved workflow** keeps the
+source and lookup choices; recent reports reopen their saved version. Home uses
+metadata rather than loading uploaded cells. See [workspace behavior](docs/PRODUCT_WORKSPACE.md).
 
 Use the [two-month walkthrough](docs/USER_GUIDE.en.md) and the documented
 [synthetic fixtures](sample_data/README.md) for the join/schema-drift case.

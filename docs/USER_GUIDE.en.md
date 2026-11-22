@@ -9,6 +9,11 @@ The October sample loads automatically. It is synthetic and deliberately contain
 defects. Guest workspaces hold three datasets; download work you need before the
 session expires. Permanent accounts are created by an administrator.
 
+**Overview** opens first. It lists your recent datasets, version-pinned reports
+and workflow activity. Open a recent dataset to inspect it, or select **Import data**.
+An empty count means no matching items in your workspace; failed reads show an
+error with retry. Home does not claim that your data is clean.
+
 Use **Import data** for CSV or XLSX. Initial limits are 5 MiB, 10,000 rows and 100
 columns. Select the correct CSV encoding, or choose a worksheet if Excel contains
 several. A wrong encoding is rejected rather than silently repaired. Files cannot
@@ -59,6 +64,8 @@ quality findings and processing history.
 2. Select October; add **Remove duplicates** using **Order ID**. Expand
    **Save a reusable workflow**, name it and choose a left join to Product lookup
    using **Product Code** on both sides.
+   After saving, **Open saved workflow** opens that definition with its source
+   and lookup already selected. Nothing executes until you choose to run it.
 3. Open **Workflows**, select that saved definition and the matching source/lookup.
    Run and inspect the preview. October becomes five rows with product labels.
    Its date/quantity defects still require a real business decision.

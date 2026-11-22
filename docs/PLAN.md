@@ -48,3 +48,35 @@ were verified. Processing behavior was retained. Before tagging: finish private
 owner password rotation/bootstrap-secret removal and record the final handoff.
 No automatic CD claim: the current public-Git deployment is manual after green CI. See
 [verification](PUBLIC_VERIFICATION.md) and [release gates](RELEASE_CHECKLIST.md).
+
+## Product usability refinement — 22 November 2026
+
+Implemented and locally verified following the owner's feedback that the public
+product feels too basic. Scope: a useful workspace home, a clearer monthly-report entry point and
+retained context between preparation, workflows and analytics. The owner also
+requested DataFlow first on their GitHub profile; profile presentation is now
+explicitly within scope, while the other project code remains untouched.
+
+Acceptance:
+
+- Home counts/recent datasets/runs/reports come from owner-scoped metadata, with
+  current-version row counts and no uploaded cell materialization or invented KPIs.
+- Failed reads show an actionable error rather than zero counts. Existing role,
+  source preservation, explicit apply and pinned-report contracts stay intact.
+- Landing illustrations are labelled examples; preparation steps, failed jobs and
+  empty states explain the next useful action.
+- Opening a saved workflow retains its source/lookup; opening a recent report
+  retains the saved version; dataset-to-analytics keeps the selected input.
+- Real PostgreSQL integration, React tests, lint/build, browser flows and scoped
+  six-width accessibility checks pass. Capture real UI screenshots. Merge only
+  after exact-head CI and verify the merged-main CI and public deployment.
+- Add the verified live app/source first to the GitHub profile project section,
+  preserving the existing entries; verify pin order through the actual profile UI.
+
+Preflight passed: 62 real-PostgreSQL backend tests, 4 React tests, lint/build,
+scoped mypy and all 9 Edge browser flows. The new Welcome/Overview checks include
+scoped axe and six-width Overview overflow checks. Owner metadata, current-version
+counts, workflow source/lookup and pinned-report handoffs were exercised.
+Profile README update `2a5ca6396285da890aab3ab9ef38333fd3274967` is on its remote
+main; its repo has no CI workflows. The DataFlow About link is the verified live URL.
+This application slice still requires exact-head/merged-main CI and public rollout.

@@ -7,6 +7,7 @@ test("review rules show actionable failures and the workspace adapts to six scre
   await page.goto("/#mapping");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await page.getByRole("button", { name: "Try a private workspace" }).click();
+  await page.getByRole("button", { name: "My datasets", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "monthly-sales-sample.csv" }),
   ).toBeVisible();
