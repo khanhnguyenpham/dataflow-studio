@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { api, post, ApiError, type Dataset } from "./api";
+import { api, post, ApiError, type Dataset, type ProblemDetails } from "./api";
 import type { Preview, Step } from "./useCleaning";
 import type { AggregateSpec } from "./useAnalytics";
 
@@ -32,7 +32,10 @@ export interface Run {
   status: string;
   preview_id: string | null;
   error_code: string | null;
-  error_details?: { missing_columns?: string[]; unexpected_columns?: string[] };
+  error_details?: ProblemDetails & {
+    missing_columns?: string[];
+    unexpected_columns?: string[];
+  };
   created_at: string;
   summary: Record<string, number> | null;
 }
@@ -107,6 +110,21 @@ export function useWorkflows(
     );
     setResult({ run, preview });
   }
+  async function execute(run: Run) {
+    const completed = await post<Run>(
+      `/workflows/${selected}/runs/${run.id}/execute`,
+    );
+    setRuns((old) => [completed, ...old.filter((r) => r.id !== completed.id)]);
+    if (["completed", "failed"].includes(completed.status))
+      attempt.current = null;
+    if (completed.status === "failed")
+      throw new ApiError(
+        completed.error_code ?? "execution_failed",
+        422,
+        completed.error_details,
+      );
+    if (completed.status === "completed") await loadResult(completed);
+  }
   return {
     inputsChanged: async () => {
       await changed();
@@ -165,19 +183,9 @@ export function useWorkflows(
           idempotency_key: attempt.current.key,
         });
         setRuns((old) => [pending, ...old.filter((r) => r.id !== pending.id)]);
-        const completed = await post<Run>(
-          `/workflows/${selected}/runs/${pending.id}/execute`,
-        );
-        setRuns((old) => [
-          completed,
-          ...old.filter((r) => r.id !== completed.id),
-        ]);
-        if (["completed", "failed"].includes(completed.status))
-          attempt.current = null;
-        if (completed.status === "failed")
-          throw new ApiError(completed.error_code ?? "execution_failed", 422);
-        if (completed.status === "completed") await loadResult(completed);
+        await execute(pending);
       }),
+    resume: (run: Run) => perform(() => execute(run)),
     inspect: (run: Run) => perform(() => loadResult(run)),
     apply: () =>
       perform(async () => {

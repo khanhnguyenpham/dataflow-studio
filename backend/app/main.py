@@ -59,6 +59,8 @@ def create_app(settings: Settings | None = None):
 
     @asynccontextmanager
     async def lifespan(app):
+        from .bootstrap import bootstrap_admin
+        await asyncio.to_thread(bootstrap_admin, sessions)
         task = asyncio.create_task(retention_loop(sessions)) if settings.retention_enabled else None
         try:
             yield
@@ -72,6 +74,7 @@ def create_app(settings: Settings | None = None):
     app = FastAPI(title="DataFlow Studio", version="0.1.0", lifespan=lifespan)
     app.state.settings, app.state.engine, app.state.sessions = settings, engine, sessions
     app.state.rate_buckets = defaultdict(list)
+    app.state.data_requests = 0
     app.add_middleware(BodyLimitMiddleware, max_bytes=settings.max_bytes + 65536)
     app.add_middleware(
         CORSMiddleware,
@@ -93,7 +96,22 @@ def create_app(settings: Settings | None = None):
                 return JSONResponse({"code": "invalid_file"}, status_code=400)
             if length > settings.max_bytes + 65536:
                 return JSONResponse({"code": "file_too_large"}, status_code=413)
-        response = await call_next(request)
+        # Single event-loop admission counter; do not queue large payloads in memory.
+        heavy = request.url.path.startswith(("/api/datasets/", "/api/reports/")) or (
+            request.method == "POST" and request.url.path.startswith("/api/workflows")
+        ) or (request.method == "POST" and request.url.path == "/api/reports") or (
+            request.url.path.startswith("/api/workflows/") and request.url.path.endswith("/result")
+        )
+        if heavy and app.state.data_requests >= 2:
+            response = JSONResponse({"code": "server_busy"}, status_code=429, headers={"Retry-After": "2"})
+        else:
+            if heavy:
+                app.state.data_requests += 1
+            try:
+                response = await call_next(request)
+            finally:
+                if heavy:
+                    app.state.data_requests -= 1
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "same-origin"
         response.headers["Cache-Control"] = "no-store" if request.url.path.startswith("/api") else "no-cache"

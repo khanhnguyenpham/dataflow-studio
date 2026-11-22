@@ -139,7 +139,9 @@
     "account_not_found": "Không tìm thấy tài khoản.",
     "guest_capacity": "Đã đủ số không gian guest đang dùng. Thử lại sau hoặc đăng nhập tài khoản thường.",
     "service_storage_limit": "Đã đạt dung lượng chung. Người quản trị cần kiểm tra dữ liệu hết hạn và giới hạn.",
-    "mapping_conflict": "Một cột nguồn không thể ghép vào nhiều cột đích."
+    "mapping_conflict": "Một cột nguồn không thể ghép vào nhiều cột đích.",
+    "validation_failed": "Dữ liệu chưa đạt quy tắc đã chọn. Xem các dòng bên dưới.",
+    "server_busy": "Hệ thống đang xử lý yêu cầu khác. Đợi một chút rồi thử lại."
   },
   "cleaning": "Làm sạch & xuất",
   "clean": {
@@ -209,7 +211,8 @@
     "filter": "Lọc dòng",
     "split": "Tách cột",
     "combine": "Ghép cột",
-    "map_columns": "Khớp tên và thứ tự cột"
+    "map_columns": "Khớp tên và thứ tự cột",
+    "validate": "Kiểm tra quy tắc"
   },
   "workflows": "Quy trình",
   "wf": {
@@ -267,7 +270,8 @@
     "sampleType": "Bộ dữ liệu mẫu",
     "salesSample": "Bán hàng tháng 10",
     "productSample": "Danh mục sản phẩm",
-    "nextSample": "Bán hàng tháng 11"
+    "nextSample": "Bán hàng tháng 11",
+    "resume": "Kiểm tra / tiếp tục lượt chạy"
   },
   "analytics": {
     "saveWorkflow": "Lưu phép tính thành quy trình",
@@ -310,7 +314,9 @@
     "missingGroup": "(Thiếu)",
     "noMeasure": "Không có giá trị số",
     "emptyResult": "Không có giá trị số để vẽ với cấu hình này.",
-    "chartLimit": "Biểu đồ hiển thị 20 nhóm có số đầu tiên. Bảng và tệp xuất có đầy đủ nhóm."
+    "chartLimit": "Biểu đồ hiển thị 20 nhóm có số đầu tiên. Bảng và tệp xuất có đầy đủ nhóm.",
+    "chartHelp": "Dùng phím mũi tên trong biểu đồ để xem các điểm. Bảng bên dưới có giá trị đầy đủ.",
+    "value": "Kết quả"
   },
   "analyticsNav": "Phân tích",
   "administration": "Quản trị",
@@ -448,5 +454,25 @@
     "saved": "Đã lưu thay đổi cột thành phiên bản mới. Chạy lại quy trình để kiểm tra.",
     "aligned": "Các cột đã khớp; không cần áp dụng thay đổi.",
     "variantSample": "Tháng 11: đổi tên cột"
+  },
+  "validationRule": {
+    "label": "Quy tắc kiểm tra",
+    "not_null": "Không được bỏ trống",
+    "unique": "Giá trị không trùng",
+    "number": "Số đã chuẩn hóa hợp lệ",
+    "date": "Ngày hợp lệ",
+    "allowEmpty": "Bỏ qua ô trống (trừ quy tắc bắt buộc)",
+    "help": "Dừng quy trình nếu dữ liệu không đạt. Không sửa giá trị. Định dạng ngày bên dưới chỉ dùng cho quy tắc ngày. Số dòng tính theo đầu vào của bước này, gồm dòng tiêu đề.",
+    "failures_other": "{{count}} dòng không đạt.",
+    "rows": "Các dòng đầu tiên cần kiểm tra",
+    "failures_one": "{{count}} dòng không đạt.",
+    "emptyAllowed": "Cho phép ô trống",
+    "emptyRejected": "Không cho ô trống"
+  },
+  "profileBounds": "Xem lại giá trị ngoài khoảng {{lower}} đến {{upper}} (1,5 × IQR). Đây là cảnh báo thống kê, chưa phải lỗi đã xác định.",
+  "distribution": "Giá trị thường gặp (tối đa năm)",
+  "samples": {
+    "inventory": "Kiểm kê tồn kho",
+    "missingKey": "Bán hàng có mã sản phẩm không khớp"
   }
 }

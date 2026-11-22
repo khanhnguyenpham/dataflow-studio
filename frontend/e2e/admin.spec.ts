@@ -51,6 +51,7 @@ test("administrator creates an account, enforces access and reviews limits/audit
     }),
   });
   page.on("dialog", (dialog) => dialog.accept());
+  await expect(row.getByRole("checkbox")).toBeChecked();
   await row.getByRole("checkbox").uncheck();
   await row.getByRole("button", { name: "Save changes", exact: true }).click();
   await expect(row.getByRole("checkbox")).not.toBeChecked();

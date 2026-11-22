@@ -1,0 +1,19 @@
+# Free web service only. Database is supplied separately; no expiring Render database.
+services:
+  - type: web
+    name: dataflow-studio
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: RETENTION_ENABLED
+        value: "true"
+      - key: DATABASE_URL
+        sync: false
+      - key: APP_ORIGINS
+        sync: false

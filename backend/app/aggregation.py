@@ -36,13 +36,13 @@ def aggregate(columns, records, spec, limits):
     _, rows, _ = apply_steps(columns, records, spec.filters, limits)
     gi = column_index(columns, spec.group_by)
     mi = column_index(columns, spec.measure) if spec.measure else None
-    grouped = defaultdict(list)
+    grouped: dict[str | None, list[Decimal | None]] = defaultdict(list)
     missing, bad = 0, []
     for number, row in enumerate(rows, 1):
         group = row[gi]
         if group not in grouped and len(grouped) >= 1000:
             raise Problem("group_limit", 413)
-        value = Decimal(1)
+        value: Decimal | None = Decimal(1)
         if mi is not None:
             if row[mi] in (None, ""):
                 value = None
@@ -69,7 +69,7 @@ def aggregate(columns, records, spec, limits):
         keys = sorted(grouped, key=lambda value: (value is None, value or ""))
         if spec.chart_type == "line":
             try:
-                keys = sorted(keys, key=lambda value: date.fromisoformat(value))
+                keys = sorted(keys, key=lambda value: date.fromisoformat(value or ""))
             except (ValueError, TypeError):
                 try:
                     keys = sorted(keys, key=lambda value: decimal_value(value))

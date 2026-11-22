@@ -139,7 +139,9 @@
     "account_not_found": "This account is unavailable.",
     "guest_capacity": "All guest workspaces are currently in use. Try later or sign in with a permanent account.",
     "service_storage_limit": "The service payload budget was reached. Ask an administrator to review retention and limits.",
-    "mapping_conflict": "A source column cannot be mapped to more than one target."
+    "mapping_conflict": "A source column cannot be mapped to more than one target.",
+    "validation_failed": "The data did not pass the selected rule. Check the rows below.",
+    "server_busy": "The workspace is processing other requests. Wait a moment and try again."
   },
   "cleaning": "Clean & export",
   "clean": {
@@ -209,7 +211,8 @@
     "filter": "Filter rows",
     "split": "Split column",
     "combine": "Combine columns",
-    "map_columns": "Align and reorder columns"
+    "map_columns": "Align and reorder columns",
+    "validate": "Check a rule"
   },
   "workflows": "Workflows",
   "wf": {
@@ -267,7 +270,8 @@
     "sampleType": "Sample dataset",
     "salesSample": "October sales",
     "productSample": "Product lookup",
-    "nextSample": "November sales"
+    "nextSample": "November sales",
+    "resume": "Check / continue this run"
   },
   "analytics": {
     "saveWorkflow": "Save calculation as workflow",
@@ -310,7 +314,9 @@
     "missingGroup": "(Missing)",
     "noMeasure": "No numeric value",
     "emptyResult": "No numeric chart values match these settings.",
-    "chartLimit": "Only the first 20 non-empty groups are charted. The table and export include every group."
+    "chartLimit": "Only the first 20 non-empty groups are charted. The table and export include every group.",
+    "chartHelp": "Use arrow keys in the chart to explore points. The result table below contains the exact values.",
+    "value": "Result"
   },
   "analyticsNav": "Analytics",
   "administration": "Administration",
@@ -448,5 +454,25 @@
     "saved": "Column changes saved as a new dataset version. Run the workflow again to validate it.",
     "aligned": "These columns already match; no changes need applying.",
     "variantSample": "November: changed column names"
+  },
+  "validationRule": {
+    "label": "Validation rule",
+    "not_null": "Required values",
+    "unique": "Unique values",
+    "number": "Valid normalized numbers",
+    "date": "Valid dates",
+    "allowEmpty": "Ignore empty values (except required rule)",
+    "help": "Stops the workflow if a rule fails. No values are changed. Date formats below apply only to the date rule. Row numbers refer to this step’s input, including the header.",
+    "failures_one": "{{count}} row did not pass.",
+    "failures_other": "{{count}} rows did not pass.",
+    "rows": "First affected row numbers",
+    "emptyAllowed": "Empty values allowed",
+    "emptyRejected": "Empty values rejected"
+  },
+  "profileBounds": "Review values outside {{lower}} to {{upper}} (1.5 × IQR). This is a statistical warning, not a confirmed error.",
+  "distribution": "Most frequent values (up to five)",
+  "samples": {
+    "inventory": "Inventory count",
+    "missingKey": "Sales with an unmatched product"
   }
 }

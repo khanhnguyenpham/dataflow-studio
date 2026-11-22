@@ -2,6 +2,20 @@
 
 import re
 import unicodedata
+from typing import TypedDict
+
+
+class Candidate(TypedDict):
+    source: str
+    score: float
+    reason: str
+
+
+class Match(TypedDict):
+    target: str
+    suggested_source: str | None
+    status: str
+    candidates: list[Candidate]
 
 GROUPS = [
     ["sku", "product code", "item code", "ma hang", "ma san pham", "ma sp"],
@@ -18,7 +32,7 @@ GROUPS = [
 MIN_SCORE, MIN_MARGIN = 0.78, 0.12
 
 
-def normalize(value):
+def normalize(value: str) -> str:
     value = re.sub(r"([a-z])([A-Z])", r"\1 \2", value).casefold().replace("đ", "d")
     value = "".join(c for c in unicodedata.normalize("NFKD", value) if not unicodedata.combining(c))
     return " ".join(re.findall(r"[a-z0-9]+", value))
@@ -27,7 +41,7 @@ def normalize(value):
 ALIASES = {normalize(name).replace(" ", ""): index for index, names in enumerate(GROUPS) for name in names}
 
 
-def similarity(source, target):
+def similarity(source: str, target: str) -> tuple[float, str]:
     a, b = normalize(source), normalize(target)
     ac, bc = a.replace(" ", ""), b.replace(" ", "")
     if ac and ac == bc:
@@ -46,32 +60,33 @@ def similarity(source, target):
 
 
 def suggest(source_columns, targets):
-    items = []
+    items: list[Match] = []
     for target in targets:
-        candidates = sorted(
+        candidates: list[Candidate] = sorted(
             [
-                {"source": source, "score": similarity(source, target)[0], "reason": similarity(source, target)[1]}
+                Candidate(source=source, score=similarity(source, target)[0], reason=similarity(source, target)[1])
                 for source in source_columns
             ],
             key=lambda row: (-row["score"], row["source"]),
         )[:3]
         best = candidates[0] if candidates else None
-        margin = best["score"] - candidates[1]["score"] if len(candidates) > 1 else 1
+        margin = best["score"] - candidates[1]["score"] if best is not None and len(candidates) > 1 else 1
         unique_exact = best and best["reason"] == "normalized_name" and sum(c["score"] == 1 for c in candidates) == 1
         accepted = best and best["score"] >= MIN_SCORE and (unique_exact or margin >= MIN_MARGIN)
         items.append(
             {
                 "target": target,
-                "suggested_source": best["source"] if accepted else None,
+                "suggested_source": best["source"] if accepted and best is not None else None,
                 "status": "suggested" if accepted else "review",
                 "candidates": candidates,
             }
         )
     # Resolve competing targets without giving priority to their input order.
-    assignments = {}
+    assignments: dict[str, list[Match]] = {}
     for item in items:
-        if item["suggested_source"]:
-            assignments.setdefault(item["suggested_source"], []).append(item)
+        source = item["suggested_source"]
+        if source:
+            assignments.setdefault(source, []).append(item)
     for values in assignments.values():
         if len(values) < 2:
             continue

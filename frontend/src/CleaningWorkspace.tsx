@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Download, Eye, RotateCcw, Trash2, Check } from "lucide-react";
 import type { Dataset, Detail } from "./api";
+import StepSummary from "./StepSummary";
+import ErrorDetails from "./ErrorDetails";
+import { recipeColumns } from "./recipes";
 import StepBuilder from "./StepBuilder";
 import WorkflowSaveForm from "./WorkflowSaveForm";
 import { useCleaning, type Slice } from "./useCleaning";
@@ -53,21 +56,7 @@ export default function CleaningWorkspace({
   const w = useCleaning(detail, changed);
   const [format, setFormat] = useState("xlsx"),
     [confirmed, setConfirmed] = useState(false);
-  const columns = w.steps.reduce(
-    (cols, step) => {
-      if (step.op === "rename")
-        return cols.map((c) =>
-          c === step.column ? String(step.name).trim() : c,
-        );
-      if (step.op === "split")
-        return cols.flatMap((c) =>
-          c === step.column ? (step.names as string[]) : [c],
-        );
-      if (step.op === "combine") return [...cols, String(step.name)];
-      return cols;
-    },
-    [...detail.column_names],
-  );
+  const columns = recipeColumns(detail.column_names, w.steps);
   return (
     <div className="cleaning-workspace" aria-busy={w.busy}>
       <div className="version-banner">
@@ -82,6 +71,7 @@ export default function CleaningWorkspace({
       {w.error && (
         <div className="error" role="alert">
           {t(`error.${w.error}`, { defaultValue: t("error.unknown") })}
+          <ErrorDetails details={w.errorDetails} />
         </div>
       )}
       <div className="cleaning-grid">
@@ -102,12 +92,7 @@ export default function CleaningWorkspace({
             {w.steps.map((step, i) => (
               <li key={i}>
                 <div>
-                  <b>{t(`op.${step.op}`)}</b>
-                  <small>
-                    {Array.isArray(step.columns)
-                      ? step.columns.join(", ")
-                      : step.column}
-                  </small>
+                  <StepSummary step={step} />
                 </div>
                 <button
                   className="icon danger"

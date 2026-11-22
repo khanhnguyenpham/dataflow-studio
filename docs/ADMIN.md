@@ -4,6 +4,12 @@ Run migrations before starting the application. Bootstrap the first administrato
 
 ## Permissions and accounts
 
+On a host without a shell, optional private `BOOTSTRAP_ADMIN_USER` and
+`BOOTSTRAP_ADMIN_PASSWORD` secrets create only the first administrator. Migration
+0006 stores a completion flag. Existing admins/passwords/roles are never reset
+by startup. Remove the secrets after confirming access. Invalid setup fails
+without echoing secrets; a colliding non-admin username is not promoted.
+
 Administration is visible only to administrators, and every endpoint independently enforces the role. Administrators manage access and operational metadata; they do not bypass ownership checks to read other people's datasets, versions, previews, workflows or reports.
 
 Create an account with a 12–128 character password. Share initial credentials privately and ask the owner to change their password. Deactivation, role changes and password resets revoke existing sessions. At least one active administrator must remain. The shared configuration lock makes concurrent changes obey that rule. A password changed during an in-progress login cannot be used to create a new session after the reset.
@@ -28,6 +34,47 @@ Production configuration (`APP_ENV=production`) requires PostgreSQL, Secure cook
 
 ## Browser checks
 
+Argon2id retains its default memory cost; at most two password operations run
+concurrently. Two data-heavy requests are admitted per process, with a controlled
+busy response for excess work. The container caps total concurrency at eight.
+Health stays available during data admission limits. Do not add processes or
+replicas without shared abuse controls and a new capacity check.
+
+## Backup and restore
+
+Use PostgreSQL client tools matching the server major version. Backups contain
+uploaded data, password hashes and session digests: keep them private and protected,
+outside Git and the web root. Choose retention and test recovery before relying
+on them. Provider snapshots and a successful dump alone do not prove recovery.
+
+Example operator commands (substitute your **DataFlow** host/user/database):
+
+```powershell
+$env:PGSSLMODE='require' # cloud SSL; local servers may use their own policy
+pg_dump -W --host DB_HOST --username DB_USER --dbname dataflow --format custom --no-owner --no-privileges --file PRIVATE_BACKUP_PATH
+createdb -W --host DB_HOST --username DB_USER dataflow_restore
+pg_restore -W --host DB_HOST --username DB_USER --dbname dataflow_restore --no-owner --no-privileges --exit-on-error PRIVATE_BACKUP_PATH
+```
+
+`-W` prompts instead of putting a password in command history. Restore to a new
+database first. Compare migration revision, table counts and content digests;
+check a leading-zero ID and a workflow/report result. A deliberate cutover needs
+paused writes, a final backup, private configuration changes and renewed sessions.
+Do not test restore with `--clean` against the live database.
+
+`scripts/verify_backup.py` creates two new, guarded loopback fixture databases,
+migrates, dumps, restores and compares all eleven tables. It refuses existing
+names and removes only databases it created in that invocation.
+Set `BACKUP_CHECK_DATABASE_URL` to a local maintenance connection ending in
+`/postgres`, `PG_BIN_DIR` to matching tools and `PYTHONPATH=backend`.
+The dump stays in ignored `.runtime/backup-check`; only verification metadata
+is published in [backup evidence](evaluation/backup-restore.json).
+This is a local synthetic drill, not a tested cloud failover.
+
+See [deployment](DEPLOYMENT.md) and [troubleshooting](TROUBLESHOOTING.md).
+
+## Running browser checks
+
 Browser tests use a separate local database named `dataflow_e2e`, not the application's database. Migrate it, run `backend/tests/browser_accounts.py create` with its `DATABASE_URL`, set `E2E_DATABASE_URL`, and execute `backend/tests/browser_runner.py`. Set `DATAFLOW_PNPM` or `DATAFLOW_PYTHON` if those commands are not on PATH. `E2E_PORT` can select a spare loopback port. The runner redacts ephemeral passwords; admin traces are disabled. Afterwards run the fixture helper with `cleanup`. Runtime credential files are ignored and must never be committed.
 
 ## Tiếng Việt
@@ -37,3 +84,9 @@ Tạo quản trị viên đầu tiên bằng lệnh `create-user --admin` sau kh
 Đổi quyền, khóa tài khoản hoặc đặt lại mật khẩu sẽ thu hồi các phiên đăng nhập. Quyền quản trị không cho phép mở dữ liệu riêng của người khác. Giới hạn áp dụng cho lần ghi mới; dữ liệu cũ không bị xóa khi hạ giới hạn.
 
 Khi máy chủ hoạt động, tác vụ dọn dữ liệu hết hạn chạy mỗi phút và lúc khởi động. Máy chủ ngủ sẽ dọn khi chạy lại. Nhật ký lưu thông tin thao tác và số lượng, không lưu mật khẩu hay nội dung ô dữ liệu.
+
+Host không có terminal có thể dùng hai secret khởi tạo quản trị viên rồi xóa
+chúng sau khi đăng nhập thành công. Khởi động lại không đổi mật khẩu/quyền cũ.
+Backup chứa dữ liệu riêng và thông tin xác thực dạng băm; không đưa lên GitHub.
+Khôi phục thử vào CSDL mới, so sánh nội dung rồi lập kế hoạch chuyển đổi; không
+thử ghi đè CSDL đang phục vụ người dùng.

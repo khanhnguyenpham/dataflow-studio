@@ -1,0 +1,21 @@
+{
+  "recorded_at": "2026-11-22T01:49:02.994796+00:00",
+  "postgres_version": 180006,
+  "scope": "Fresh local synthetic fixture; custom-format pg_dump/pg_restore; not a cloud recovery drill.",
+  "tables_compared": 11,
+  "table_row_counts": {
+    "site_config": 1,
+    "users": 1,
+    "audit_logs": 0,
+    "datasets": 1,
+    "login_sessions": 0,
+    "workflows": 0,
+    "dataset_versions": 0,
+    "previews": 0,
+    "reports": 0,
+    "workflow_runs": 0,
+    "workflow_versions": 0
+  },
+  "all_table_hashes_equal": true,
+  "original_id_text_preserved": true
+}

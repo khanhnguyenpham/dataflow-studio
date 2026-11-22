@@ -1,5 +1,21 @@
 # Architecture
 
+Rendering uses one chart library, Recharts, loaded with analytics. Geometry uses
+JavaScript numbers; table/JSON values retain server Decimal strings. React renders
+uploaded text without inserting HTML. Six widths and scoped automated accessibility
+checks complement functional tests.
+
+Two data-heavy requests and, separately, two Argon2id operations are admitted per
+process. Import parsing uses the request thread pool, not the event loop.
+These controls and the eight-request container limit target one small instance;
+they are not a measured production throughput claim.
+
+Optional first-admin secrets run at startup under the configuration lock. A
+persistent completion flag prevents restarts from resetting or re-promoting
+accounts. There is no HTTP bootstrap endpoint or default administrator.
+Free hosting targets one Docker service with external persistent PostgreSQL;
+actual provisioning and public verification remain open. See [deployment](DEPLOYMENT.md).
+
 React calls the same-origin `/api` service. FastAPI validates typed requests, authenticates cookie/CSRF state and scopes every dataset/workflow/report query to its owner. Pure processing functions receive rows and limits rather than HTTP objects or database sessions. This is a bounded modular monolith, with one application instance.
 
 ```mermaid

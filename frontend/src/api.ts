@@ -33,12 +33,21 @@ export interface Profile {
     invalid: number;
     outlier_warnings: number;
     statistics: Record<string, string> | null;
+    outlier_bounds: { lower: string; upper: string; method: string } | null;
+    distribution: { value: string; count: number }[];
   }[];
+}
+export interface ProblemDetails {
+  column?: string;
+  rule?: string;
+  rows?: number[];
+  count?: number;
 }
 export class ApiError extends Error {
   constructor(
     public code: string,
     public status: number,
+    public details?: ProblemDetails,
   ) {
     super(code);
   }
@@ -66,7 +75,8 @@ export async function api<T>(
     response.status === 204
       ? undefined
       : await response.json().catch(() => ({ code: "unknown" }));
-  if (!response.ok) throw new ApiError(data.code ?? "unknown", response.status);
+  if (!response.ok)
+    throw new ApiError(data.code ?? "unknown", response.status, data.details);
   if (data?.csrf) csrf = data.csrf;
   return data as T;
 }
@@ -86,7 +96,7 @@ export async function download(path: string, body: unknown, name: string) {
   });
   if (!response.ok) {
     const error = await response.json().catch(() => ({ code: "unknown" }));
-    throw new ApiError(error.code ?? "unknown", response.status);
+    throw new ApiError(error.code ?? "unknown", response.status, error.details);
   }
   const url = URL.createObjectURL(await response.blob());
   const anchor = document.createElement("a");

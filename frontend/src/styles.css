@@ -1,4 +1,5 @@
 @import "tailwindcss";
+
 .schema-assistant {
   border: 1px solid #dfe7e0;
   border-radius: 6px;
@@ -112,7 +113,7 @@
 .empty-chart {
   padding: 30px 0;
   text-align: center;
-  color: #64796e;
+  color: #4f655a;
 }
 .report-toolbar {
   display: flex;
@@ -160,7 +161,7 @@
   line-height: 2;
 }
 .workflow-steps span {
-  color: #64796e;
+  color: #4f655a;
 }
 .workflow-edit {
   margin-top: 18px;
@@ -186,7 +187,7 @@
   gap: 5px;
 }
 .run-list small {
-  color: #64796e;
+  color: #4f655a;
   font-size: 11px;
 }
 @media (max-width: 600px) {
@@ -235,7 +236,7 @@
 .version-banner span,
 .version-list small,
 .muted {
-  color: #60766b;
+  color: #4f655a;
   font-size: 12px;
 }
 .recipe-panel {
@@ -261,7 +262,7 @@
   min-height: 100px;
 }
 .step-form small {
-  color: #60766b;
+  color: #4f655a;
   font-size: 11px;
 }
 .recipe-list {
@@ -288,7 +289,7 @@
 }
 .recipe-list small {
   font-size: 11px;
-  color: #60766b;
+  color: #4f655a;
 }
 .actions {
   display: flex;
@@ -306,7 +307,7 @@
 }
 .preview-side h3 span {
   font-weight: 400;
-  color: #60766b;
+  color: #4f655a;
 }
 .preview-scroll {
   overflow: auto;
@@ -494,19 +495,19 @@ h3 {
 }
 .brand b {
   font-weight: 400;
-  color: #75867e;
+  color: #4f655a;
 }
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: #7b8e83;
+  color: #4f655a;
   font-size: 10px;
   font-weight: 700;
   margin-bottom: 9px;
 }
 .muted,
 small {
-  color: #6e8077;
+  color: #4f655a;
   font-size: 12px;
 }
 .locale select {
@@ -540,7 +541,7 @@ small {
 .hero > p {
   font-size: 17px;
   line-height: 1.7;
-  color: #65786c;
+  color: #4f655a;
   max-width: 590px;
   margin: 0 auto 25px;
 }
@@ -590,7 +591,7 @@ small {
   display: flex;
   gap: 9px;
   font-size: 11px;
-  color: #738379;
+  color: #4f655a;
   line-height: 1.7;
   margin: 14px 0 0;
 }
@@ -629,7 +630,7 @@ small {
   gap: 8px;
   align-items: center;
   font-size: 11px;
-  color: #738479;
+  color: #4f655a;
 }
 .status-dot {
   height: 6px;
@@ -644,7 +645,7 @@ nav {
 nav button {
   justify-content: flex-start;
   background: transparent;
-  color: #687a6f;
+  color: #4f655a;
   border-color: transparent;
   padding: 10px 13px;
 }
@@ -658,7 +659,7 @@ nav button:hover {
 .logout {
   margin-top: auto;
   background: transparent;
-  color: #697c70;
+  color: #4f655a;
   border-color: transparent;
   justify-content: flex-start;
   padding-left: 14px;
@@ -679,7 +680,7 @@ nav button:hover {
   font-size: 12px;
 }
 .topbar span {
-  color: #8a978e;
+  color: #4f655a;
 }
 .topbar b {
   font-weight: 500;
@@ -730,7 +731,7 @@ nav button:hover {
 }
 .metrics span {
   display: block;
-  color: #75867a;
+  color: #4f655a;
   font-size: 12px;
   margin-bottom: 8px;
 }
@@ -764,7 +765,7 @@ table {
 }
 th {
   background: #f2f6f2;
-  color: #738377;
+  color: #4f655a;
   font-weight: 550;
   position: sticky;
   top: 0;
@@ -780,14 +781,14 @@ td {
   color: #3c5043;
 }
 .null {
-  color: #bd8b49;
+  color: #895b19;
 }
 .pagination {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 18px;
-  color: #738477;
+  color: #4f655a;
   font-size: 12px;
 }
 .pagination > div {
@@ -803,7 +804,7 @@ td {
   gap: 10px;
   font-size: 12px;
   line-height: 1.7;
-  color: #698070;
+  color: #4f655a;
   background: #edf4ef;
   padding: 14px;
   border-radius: 7px;
@@ -829,7 +830,7 @@ td {
   padding: 3px 8px;
   border-radius: 4px;
   font-size: 10px;
-  color: #668372;
+  color: #4f655a;
 }
 .field dl {
   display: grid;
@@ -839,14 +840,14 @@ td {
 }
 .field dt {
   font-size: 11px;
-  color: #849187;
+  color: #4f655a;
 }
 .field dd {
   margin: 5px 0 0;
   font-size: 16px;
 }
 .field dd.warn {
-  color: #ab761f;
+  color: #895b19;
 }
 .field details {
   margin-top: 13px;
@@ -856,7 +857,7 @@ td {
 .field summary {
   font-size: 12px;
   cursor: pointer;
-  color: #748678;
+  color: #4f655a;
 }
 .field details dl {
   margin-top: 14px;
@@ -874,11 +875,11 @@ td {
   padding: 20px;
 }
 .empty svg {
-  color: #92aca0;
+  color: #4f655a;
   margin-bottom: 18px;
 }
 .empty p {
-  color: #7b8d7f;
+  color: #4f655a;
   font-size: 13px;
   line-height: 1.7;
   max-width: 390px;
@@ -957,7 +958,7 @@ td {
 }
 .skeleton {
   padding: 24px;
-  color: #819183;
+  color: #4f655a;
   font-size: 12px;
 }
 .skeleton i {
@@ -1160,7 +1161,7 @@ td {
     gap: 8px;
   }
   .mobile-records dt {
-    color: #7f9183;
+    color: #4f655a;
     font-size: 11px;
     overflow-wrap: anywhere;
   }
@@ -1217,5 +1218,29 @@ td {
   }
   .help {
     padding: 18px;
+  }
+}
+.step-summary {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.error-context {
+  display: grid;
+  gap: 3px;
+  margin-top: 6px;
+}
+.chart-scroll {
+  width: 100%;
+  min-width: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

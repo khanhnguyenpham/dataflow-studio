@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { api, post, download, ApiError, type Detail } from "./api";
+import {
+  api,
+  post,
+  download,
+  ApiError,
+  type Detail,
+  type ProblemDetails,
+} from "./api";
 
 export interface ColumnMapping {
   source: string;
@@ -48,6 +55,7 @@ export function useCleaning(detail: Detail, changed: () => Promise<void>) {
   const [versions, setVersions] = useState<Version[]>([]),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  const [errorDetails, setErrorDetails] = useState<ProblemDetails>();
   useEffect(() => {
     const controller = new AbortController();
     api<{ items: Version[] }>(`/datasets/${detail.id}/versions`, {
@@ -62,10 +70,12 @@ export function useCleaning(detail: Detail, changed: () => Promise<void>) {
   async function perform(work: () => Promise<void>) {
     setBusy(true);
     setError("");
+    setErrorDetails(undefined);
     try {
       await work();
     } catch (e) {
       setError(e instanceof ApiError ? e.code : "network");
+      setErrorDetails(e instanceof ApiError ? e.details : undefined);
     } finally {
       setBusy(false);
     }
@@ -74,6 +84,7 @@ export function useCleaning(detail: Detail, changed: () => Promise<void>) {
     setSteps(value);
     setPreview(null);
     setError("");
+    setErrorDetails(undefined);
   };
   return {
     steps,
@@ -82,6 +93,7 @@ export function useCleaning(detail: Detail, changed: () => Promise<void>) {
     versions,
     busy,
     error,
+    errorDetails,
     inspect: () =>
       perform(async () =>
         setPreview(

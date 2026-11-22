@@ -2,6 +2,8 @@ import { useTranslation } from "react-i18next";
 import { Play, Eye, Check, Trash2 } from "lucide-react";
 import type { Dataset } from "./api";
 import { useWorkflows } from "./useWorkflows";
+import StepSummary from "./StepSummary";
+import ErrorDetails from "./ErrorDetails";
 import StepBuilder from "./StepBuilder";
 import { recipeColumns } from "./recipes";
 import SchemaAssistant from "./SchemaAssistant";
@@ -86,12 +88,7 @@ export default function WorkflowWorkspace({
                           )
                         }
                       />
-                      <b>{t(`op.${s.op}`)}</b>{" "}
-                      <span>
-                        {Array.isArray(s.columns)
-                          ? s.columns.join(", ")
-                          : s.column}
-                      </span>
+                      <StepSummary step={s} />
                     </label>
                     <div className="actions">
                       <button
@@ -363,6 +360,7 @@ export default function WorkflowWorkspace({
                           })}
                         </small>
                       )}
+                      <ErrorDetails details={r.error_details} />
                       {!!r.error_details?.missing_columns?.length && (
                         <small>
                           {t("wf.missingColumns")}{" "}
@@ -376,6 +374,15 @@ export default function WorkflowWorkspace({
                         </small>
                       )}
                     </div>
+                    {["pending", "running"].includes(r.status) && (
+                      <button
+                        className="secondary"
+                        disabled={w.busy}
+                        onClick={() => void w.resume(r)}
+                      >
+                        {t("wf.resume")}
+                      </button>
+                    )}
                     {r.status === "completed" && (
                       <button
                         className="secondary"

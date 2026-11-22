@@ -10,7 +10,19 @@ Import, profiling, versioned cleaning/export, reusable workflows and saved analy
 
 Available in this working slice: isolated, two-hour guest sessions; sign-in and password changes; bounded CSV/XLSX imports; explicit selection of Excel sheets; dataset preview; missing values, duplicate rows, suggested types and review warnings; English/Vietnamese UI. Source bytes and values are retained without automatic correction. Accounts are created by an operator.
 
-Clean & export adds typed recipes, before/after previews, explicit apply, retained version history/restore and CSV/XLSX/JSON/quality downloads. [Workflows](docs/WORKFLOWS.md) save recipes and column contracts, append/join tables with key checks, aggregate, and run against new files with persisted history and idempotent retries. [Analytics](docs/ANALYTICS.md) provides real Decimal totals/counts/averages, filtered charts and saved reports pinned to dataset versions. See the [cleaning guide](docs/CLEANING.md). [Administration](docs/ADMIN.md) manages accounts, operational run status, quotas, retention and audit without bypassing dataset ownership. [Column assistance](docs/SCHEMA_ASSISTANCE.md) suggests reviewed name mappings and previews exact workflow alignment. Public hosting remains a later milestone. See [implementation status](docs/IMPLEMENTATION_STATUS.md) and the [plan](docs/PLAN.md).
+Clean & export adds typed recipes and validation rules, before/after previews,
+explicit apply, retained versions/restore and CSV/XLSX/JSON/quality downloads.
+Workflows reuse cleaning, checked joins and optional aggregation on new files.
+Analytics uses Decimal totals/counts/averages, Recharts and version-pinned reports.
+Administration manages accounts, quotas, retention and metadata-only audit.
+Reviewed bilingual column suggestions help align renamed monthly files.
+
+Start with the [user guide](docs/USER_GUIDE.en.md), or read the
+[operator guide](docs/ADMIN.md), [architecture](docs/ARCHITECTURE.md),
+[roadmap](docs/ROADMAP.md) and [release checks](docs/RELEASE_CHECKLIST.md).
+The [deployment configuration](docs/DEPLOYMENT.md) targets Render Free with
+external Neon PostgreSQL; account sign-in and real public verification are still open.
+See [implementation status](docs/IMPLEMENTATION_STATUS.md).
 
 ![DataFlow workspace with the synthetic sales sample](docs/images/workspace-desktop.png)
 
@@ -38,6 +50,7 @@ Create a permanent account with `python -m app.cli create-user` (add `--admin` o
 ```powershell
 .venv\Scripts\python -m pytest
 .venv\Scripts\python -m ruff check backend
+.venv\Scripts\python -m mypy
 cd frontend
 pnpm test
 pnpm build
@@ -51,6 +64,12 @@ For real PostgreSQL integration tests set `TEST_DATABASE_URL` to a dedicated dat
 
 FastAPI + SQLAlchemy/Alembic + PostgreSQL, React/TypeScript/Vite/Tailwind and i18next. A modular monolith keeps processing independent from HTTP. Initial imports are limited to 5 MB, 10,000 rows and 100 columns. XLSX macros, external links and unsafe archive sizes are rejected. CSV encodings are explicit rather than silently guessed. IDs and source values remain text. A column's suggested type is a heuristic, not a declared business rule; outliers are warnings.
 
+Mypy currently checks four core configuration/processing modules, not every
+endpoint. CI also runs PostgreSQL API checks, browser flows, known-advisory audits
+and a real Docker startup. Read the recorded evidence for each check's limits.
+
 Passwords use Argon2id. Sessions use HttpOnly cookies, CSRF checks and expiry. Data ownership is checked at the backend for list, preview, profiling and deletion. Rate limiting is currently per-process and intended for a single bounded instance; shared quotas and independent security review are needed before a public multi-instance service.
 
 There are no patient records, paid AI APIs or invented business metrics. The [sample](sample_data/README.md) is synthetic with documented expected defects.
+
+For code walkthroughs and interview preparation, see [what to understand](docs/INTERVIEW_GUIDE.md).

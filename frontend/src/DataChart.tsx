@@ -1,4 +1,19 @@
 import { useTranslation } from "react-i18next";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import type { AggregateResult } from "./useAnalytics";
 const colors = [
   "#28766f",
@@ -21,123 +36,94 @@ export default function DataChart({
   title: string;
 }) {
   const { t, i18n } = useTranslation();
-  const rows = result.items.filter((row) => row.value !== null).slice(0, 20),
-    values = rows.map((r) => Number(r.value));
-  const format = (n: number) =>
+  const rows = result.items
+    .filter((row) => row.value !== null)
+    .slice(0, 20)
+    .map((row, index) => ({
+      group:
+        row.group === null || row.group === ""
+          ? t("analytics.missingGroup")
+          : row.group,
+      value: Number(row.value),
+      exact: row.value,
+      color: colors[index % colors.length],
+    }));
+  const format = (value: number) =>
     new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 3 }).format(
-      n,
+      value,
     );
-  const label = (value: string | null) =>
-    value === null || value === "" ? t("analytics.missingGroup") : value;
-  if (!rows.length || rows.every((r) => r.value === null))
+  // Plotting uses JS numbers; the adjacent table and exports retain server Decimal strings.
+  if (!rows.length)
     return <p className="empty-chart">{t("analytics.emptyResult")}</p>;
-  let angle = -Math.PI / 2;
-  const min = Math.min(0, ...values),
-    max = Math.max(0, ...values),
-    span = max - min || 1;
-  const y = (value: number) => 260 - ((value - min) / span) * 220,
-    x = (index: number) => 70 + ((index + 0.5) * 600) / rows.length;
+  const tooltip = (
+    <Tooltip
+      formatter={(value) => format(Number(value))}
+      cursor={{ fill: "#edf4ef" }}
+    />
+  );
   return (
     <>
-      <div className="chart-scroll">
-        <svg
-          className="data-chart"
-          viewBox="0 0 720 330"
-          role="img"
-          aria-label={title}
-        >
-          <title>{title}</title>
+      <div className="chart-scroll" role="region" aria-label={title}>
+        <ResponsiveContainer width="100%" height={330} minWidth={0}>
           {type === "pie" ? (
-            rows.map((row, i) => {
-              const portion = values[i] / values.reduce((a, b) => a + b, 0),
-                start = angle;
-              angle += portion * Math.PI * 2;
-              const cx = 190,
-                cy = 155,
-                r = 110;
-              return (
-                <g key={i}>
-                  {portion >= 0.999999 ? (
-                    <circle
-                      cx={cx}
-                      cy={cy}
-                      r={r}
-                      fill={colors[i % colors.length]}
-                    />
-                  ) : (
-                    <path
-                      d={`M ${cx} ${cy} L ${cx + r * Math.cos(start)} ${cy + r * Math.sin(start)} A ${r} ${r} 0 ${portion > 0.5 ? 1 : 0} 1 ${cx + r * Math.cos(angle)} ${cy + r * Math.sin(angle)} Z`}
-                      fill={colors[i % colors.length]}
-                    />
-                  )}
-                  <title>
-                    {label(row.group)}: {row.value}
-                  </title>
-                  <rect
-                    x="360"
-                    y={28 + i * 33}
-                    width="12"
-                    height="12"
-                    rx="2"
-                    fill={colors[i % colors.length]}
-                  />
-                  <text x="382" y={39 + i * 33}>
-                    {label(row.group).slice(0, 25)} · {format(values[i])}
-                  </text>
-                </g>
-              );
-            })
+            <PieChart accessibilityLayer>
+              <Pie
+                data={rows}
+                dataKey="value"
+                nameKey="group"
+                innerRadius={35}
+                outerRadius={100}
+                isAnimationActive={false}
+              >
+                {rows.map((row) => (
+                  <Cell key={row.group} fill={row.color} />
+                ))}
+              </Pie>
+              {tooltip}
+              <Legend />
+            </PieChart>
+          ) : type === "line" ? (
+            <LineChart
+              data={rows}
+              accessibilityLayer
+              margin={{ top: 16, right: 20, bottom: 36, left: 20 }}
+            >
+              <CartesianGrid stroke="#e4ebe5" vertical={false} />
+              <XAxis dataKey="group" tickMargin={10} />
+              <YAxis tickFormatter={format} width={75} />
+              <Line
+                type="linear"
+                dataKey="value"
+                name={t("analytics.value")}
+                stroke="#28766f"
+                strokeWidth={2}
+                dot
+                isAnimationActive={false}
+              />
+              {tooltip}
+            </LineChart>
           ) : (
-            <>
-              {[min, (min + max) / 2, max].map((n, i) => (
-                <g key={i}>
-                  <line x1="62" y1={y(n)} x2="680" y2={y(n)} stroke="#e4ebe5" />
-                  <text x="55" y={y(n) + 4} textAnchor="end">
-                    {format(n)}
-                  </text>
-                </g>
-              ))}
-              {type === "line" && (
-                <polyline
-                  fill="none"
-                  stroke="#28766f"
-                  strokeWidth="3"
-                  points={values.map((v, i) => `${x(i)},${y(v)}`).join(" ")}
-                />
-              )}
-              {rows.map((row, i) => (
-                <g key={i}>
-                  {type === "bar" ? (
-                    <rect
-                      x={x(i) - Math.min(32, 230 / rows.length)}
-                      y={Math.min(y(0), y(values[i]))}
-                      width={Math.min(64, 460 / rows.length)}
-                      height={Math.max(1, Math.abs(y(values[i]) - y(0)))}
-                      rx="3"
-                      fill={row.value === null ? "#d8e2db" : "#28766f"}
-                    />
-                  ) : (
-                    <circle cx={x(i)} cy={y(values[i])} r="5" fill="#28766f" />
-                  )}
-                  <title>
-                    {label(row.group)}: {row.value ?? t("analytics.noMeasure")}
-                  </title>
-                  <text
-                    x={x(i)}
-                    y="286"
-                    textAnchor="middle"
-                    transform={
-                      rows.length > 8 ? `rotate(30,${x(i)},286)` : undefined
-                    }
-                  >
-                    {label(row.group).slice(0, rows.length > 8 ? 7 : 14)}
-                  </text>
-                </g>
-              ))}
-            </>
+            <BarChart
+              data={rows}
+              accessibilityLayer
+              margin={{ top: 16, right: 20, bottom: 36, left: 20 }}
+            >
+              <CartesianGrid stroke="#e4ebe5" vertical={false} />
+              <XAxis dataKey="group" tickMargin={10} />
+              <YAxis tickFormatter={format} width={75} />
+              <Bar
+                dataKey="value"
+                name={t("analytics.value")}
+                fill="#28766f"
+                maxBarSize={48}
+                isAnimationActive={false}
+              />
+              {tooltip}
+            </BarChart>
           )}
-        </svg>
+        </ResponsiveContainer>
       </div>
+      <p className="muted">{t("analytics.chartHelp")}</p>
       {result.items.length > 20 && (
         <p className="muted">{t("analytics.chartLimit")}</p>
       )}

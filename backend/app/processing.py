@@ -175,11 +175,16 @@ def profile(columns, records):
             if valid
             else None
         )
-        outliers = 0
+        outliers, outlier_bounds = 0, None
         if len(valid) >= 4:
             q1, _, q3 = statistics.quantiles(valid, n=4, method="inclusive")
             span = q3 - q1
-            outliers = sum(n < q1 - Decimal("1.5") * span or n > q3 + Decimal("1.5") * span for n in valid)
+            low, high = q1 - Decimal("1.5") * span, q3 + Decimal("1.5") * span
+            outliers = sum(n < low or n > high for n in valid)
+            outlier_bounds = {"lower": str(low), "upper": str(high), "method": "1.5-IQR-inclusive"}
+        counts = {}
+        for value in present:
+            counts[value] = counts.get(value, 0) + 1
         summaries.append(
             {
                 "name": column,
@@ -189,6 +194,11 @@ def profile(columns, records):
                 "invalid": invalid,
                 "outlier_warnings": outliers,
                 "statistics": stats,
+                "outlier_bounds": outlier_bounds,
+                "distribution": [
+                    {"value": value, "count": count}
+                    for value, count in sorted(counts.items(), key=lambda item: (-item[1], item[0]))[:5]
+                ],
             }
         )
     return {

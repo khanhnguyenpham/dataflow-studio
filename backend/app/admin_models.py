@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import DateTime, ForeignKey, Integer, JSON, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 from .db import Base, key, now
@@ -10,6 +10,7 @@ class SiteConfig(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     revision: Mapped[int] = mapped_column(Integer, default=1)
     limits: Mapped[dict] = mapped_column(JSON().with_variant(JSONB(), "postgresql"))
+    bootstrap_completed: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
 
 
 class AuditLog(Base):

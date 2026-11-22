@@ -22,6 +22,8 @@ SAMPLES = {
     "products": ("products.csv", (SAMPLE_DIR / "products.csv").read_bytes()),
     "next-month": ("next-month-sales.csv", (SAMPLE_DIR / "next-month-sales.csv").read_bytes()),
     "variant": ("next-month-variant.csv", (SAMPLE_DIR / "next-month-variant.csv").read_bytes()),
+    "inventory": ("inventory.csv", (SAMPLE_DIR / "inventory.csv").read_bytes()),
+    "missing-key": ("sales-missing-key.csv", (SAMPLE_DIR / "sales-missing-key.csv").read_bytes()),
 }
 
 
@@ -82,7 +84,7 @@ def datasets(user=Depends(identity), db=Depends(session_db)):
 @router.post("/sample", status_code=201)
 def sample(
     request: Request,
-    kind: Literal["sales", "products", "next-month", "variant"] = "sales",
+    kind: Literal["sales", "products", "next-month", "variant", "inventory", "missing-key"] = "sales",
     user=Depends(identity),
     db=Depends(session_db),
 ):
@@ -93,7 +95,7 @@ def sample(
 
 
 @router.post("/import")
-async def import_file(
+def import_file(
     request: Request,
     file: UploadFile = File(),
     sheet: str | None = Form(None),
@@ -103,8 +105,10 @@ async def import_file(
 ):
     limited(request, "import", 30, 60)
     settings = request.app.state.settings
-    content = await file.read(settings.max_bytes + 1)
-    await file.close()
+    try:
+        content = file.file.read(settings.max_bytes + 1)
+    finally:
+        file.file.close()
     parsed = parse_file(content, file.filename or "upload", settings, sheet, encoding)
     if parsed.get("requires_sheet"):
         return parsed
